@@ -69,6 +69,17 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 #home>.card{margin-top:0}
 @media(max-width:390px){.home-kpi-shift .metric{font-size:26px}.home-ship-date{font-size:13px}}
 @media(min-width:680px){.screen{padding:18px}.top{padding-left:20px;padding-right:20px}.kpi-wrap{grid-template-columns:repeat(4,1fr)}}
+
+/* v0.1.27 — iPhone history layout = desktop */
+@media(max-width:480px){
+  #production .production-row{display:block!important;padding:12px 0!important}
+  #production .production-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;column-gap:14px!important;align-items:center!important;width:100%!important}
+  #production .production-date{font-size:16px!important;font-weight:800!important;line-height:1.15!important;white-space:nowrap!important;min-width:0!important}
+  #production .production-qty-big{font-size:24px!important;font-weight:850!important;line-height:1!important;text-align:right!important;white-space:nowrap!important;min-width:34px!important}
+  #production .production-debt{font-size:21px!important;font-weight:850!important;line-height:1!important;text-align:right!important;margin:0!important;white-space:nowrap!important;min-width:64px!important}
+  #production .production-bottom{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin-top:7px!important}
+  #production .production-item{font-size:15px!important;font-weight:750!important;margin:0!important;white-space:nowrap!important}
+}
 @media print{.top,.bottom,.no-print{display:none!important}.screen{display:none!important}.screen#preview{display:block!important;padding:0}.card{border:0;padding:0}.app{max-width:none;padding:0}.preview{font-size:14px}}
 </style>
 </head>
@@ -194,7 +205,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div></nav>
 
 <script>
-const BUILD='v0.1.26';
+const BUILD='v0.1.27';
 let productionEditMode=false;
 let itemListEditMode=false;
 const DEFAULT_SKU_COLORS={STPP:['Black','Navy'],GSTP:['Black','Blue','Yellow'],STS:['Black'],GWM:['Black','Navy','Grey'],GPLU:['Black','Grey','Navy'],GSTT:['Black'],GHWS:['Black'],'Khác':['Khác']};
@@ -318,6 +329,6 @@ function renderAll(){syncOrderDateDisplays();document.getElementById('headerSub'
 async function init(){await openDB();await loadState();if(!state.orders.length){state.orders=[JSON.parse(JSON.stringify(SEEDED_ORDER))];state.activeOrderId=SEEDED_ORDER_ID;persist()}populateSku();const t=todayISO();document.getElementById('prodDate').value=t;document.getElementById('shipDate').value=addDays(t,7);document.getElementById('startDate').value=t;syncOrderDateDisplays();document.getElementById('startDate').addEventListener('change',()=>syncDateDisplay('startDate'));document.getElementById('shipDate').addEventListener('change',()=>syncDateDisplay('shipDate'));document.getElementById('prodDate').addEventListener('change',()=>{syncDateDisplay('prodDate');renderProduction()});document.getElementById('shiftTargetCartons')?.addEventListener('change',()=>saveShiftTargetFromForm());document.getElementById('shiftTargetPieces')?.addEventListener('change',()=>saveShiftTargetFromForm());const addSkuBtn=document.getElementById('addSkuBtn');if(addSkuBtn)addSkuBtn.addEventListener('click',addSkuConfig);const newSkuName=document.getElementById('newSkuName');if(newSkuName)newSkuName.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addSkuConfig()}});const skuColorConfig=document.getElementById('skuColorConfig');if(skuColorConfig&&!skuColorConfig.dataset.bound){skuColorConfig.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(!btn||!skuColorConfig.contains(btn))return;const action=btn.dataset.action,sku=btn.dataset.sku;if(action==='add-color')addColorConfig(sku);else if(action==='delete-sku')deleteSkuConfig(sku);else if(action==='delete-color')deleteColorConfig(sku,btn.dataset.color)});skuColorConfig.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const input=e.target.closest('[data-color-input]');if(!input)return;e.preventDefault();addColorConfig(input.dataset.colorInput)});skuColorConfig.dataset.bound='1'};document.getElementById('itemColor')?.addEventListener('change',refreshThreadHints);document.getElementById('prodColor')?.addEventListener('change',refreshThreadHints);document.getElementById('threadSku')?.addEventListener('change',refreshThreadColors);document.getElementById('addThreadMapBtn')?.addEventListener('click',addThreadMap);document.getElementById('threadCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addThreadMap()}});const threadBox=document.getElementById('threadCodeConfig');if(threadBox&&!threadBox.dataset.bound){threadBox.addEventListener('click',e=>{const btn=e.target.closest('[data-thread-action]');if(!btn)return;if(btn.dataset.threadAction==='delete-map')deleteThreadMap(btn.dataset.code,btn.dataset.index);else if(btn.dataset.threadAction==='delete-code')deleteThreadCode(btn.dataset.code)});threadBox.dataset.bound='1'};renderAll()}
 init();
 </script>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.26</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.27</span></div>
 </body>
 </html>
