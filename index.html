@@ -382,7 +382,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.92';
+const BUILD='v0.1.93';
 let productionEditMode=false;
 let itemListEditMode=false;
 let orderItemFormOpen=false;
@@ -581,7 +581,9 @@ function renderOrders(){
     list.innerHTML=tools+rows
   }
   const ordersList=document.getElementById('ordersList');
-  ordersList.innerHTML=state.orders.length?state.orders.map(x=>{
+  const editingOrderId=orderFormOpen?(document.getElementById('orderCode')?.dataset.editId||''):'';
+  const visibleOrders=editingOrderId?state.orders.filter(x=>x.id===editingOrderId):state.orders;
+  ordersList.innerHTML=visibleOrders.length?visibleOrders.map(x=>{
     const total=totalOrder(x),prod=producedTotal(x),left=remaining(x),active=x.id===state.activeOrderId;
     return `<div class="list-item order-record${active?' is-active':''}"><div class="row between"><div><div class="code">${esc(x.code)}</div><div class="hint">Bắt đầu ${fmtDate(x.startDate)} · Xuất ${fmtDate(x.shipDate)}</div></div><span class="pill ${active?'ok':''}">${active?'Đang chọn':'Chọn'}</span></div><div class="hint" style="margin-top:7px">Giao: <b>${fmtN(total)}</b> · Đã may: <b>${fmtN(prod)}</b> · Còn: <b>${fmtN(left)}</b></div><div class="row" style="margin-top:8px"><button class="btn alt small" onclick="setActiveOrder('${x.id}')">Dùng đơn này</button><button type="button" class="icon-edit" aria-label="Sửa đơn ${esc(x.code)}" title="Sửa đơn" onclick="editOrder('${x.id}')">${pencilIcon()}</button><button class="btn danger small" onclick="delOrder('${x.id}')">Xóa</button></div>${active?`<div class="order-items-context" id="orderItemsContext-${x.id}"></div>`:''}</div>`
   }).join(''):'<div class="empty">Chưa có đơn hàng.</div>';
@@ -614,6 +616,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.92</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.93</span></div>
 </body>
 </html>
