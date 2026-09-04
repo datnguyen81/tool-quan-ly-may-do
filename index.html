@@ -102,14 +102,15 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .breakdown-save-btn{background:#0a66ff;border-color:#0a66ff;color:#fff}
 .breakdown-save-btn:active{background:#0758d9;border-color:#0758d9}
 .breakdown-list{margin-top:12px;border-top:1px solid var(--line)}
-.breakdown-row{display:grid;grid-template-columns:minmax(0,1fr) 64px auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.breakdown-row{display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,1fr);gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
 .breakdown-row:last-child{border-bottom:0;padding-bottom:0}
 .breakdown-row-date{font-size:14px;font-weight:850;line-height:1.2}
 .breakdown-row-reason{margin-top:3px;font-size:12px;color:var(--muted);line-height:1.3;overflow-wrap:anywhere}
 .breakdown-photo-slot{width:64px;height:48px;display:flex;align-items:center;justify-content:center}
-.breakdown-row-actions{display:flex;align-items:center;gap:7px}
+.breakdown-row-actions{display:flex;align-items:center;justify-self:end;gap:7px}
 .breakdown-photo-field{margin-bottom:0}
 .breakdown-action-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.form-bottom-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}.form-bottom-actions .btn{white-space:nowrap}
 .breakdown-photo-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .breakdown-photo-preview{display:none;align-items:center;gap:9px;margin-top:8px;padding:7px 9px;border:1px solid var(--line);border-radius:12px;background:#fafaf9}
 .breakdown-photo-preview.has-photo{display:flex}
@@ -119,7 +120,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .breakdown-row-main{min-width:0}
 .breakdown-thumb{width:64px;height:48px;padding:0;border:0;background:transparent;border-radius:9px;overflow:hidden;display:block}
 .breakdown-thumb img{width:64px;height:48px;object-fit:cover;display:block;border-radius:9px;border:1px solid var(--line);background:#eee}
-@media(max-width:430px){.breakdown-row{grid-template-columns:minmax(0,1fr) 58px auto;gap:8px}.breakdown-photo-slot{width:58px;height:46px}.breakdown-thumb,.breakdown-thumb img{width:58px;height:46px}}
+@media(max-width:430px){.breakdown-row{grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr);gap:8px}.breakdown-photo-slot{width:58px;height:46px}.breakdown-thumb,.breakdown-thumb img{width:58px;height:46px}}
 .photo-viewer{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;padding:20px}
 .photo-viewer.open{display:flex}
 .photo-viewer img{max-width:min(94vw,900px);max-height:88vh;border-radius:14px;background:#111;box-shadow:0 12px 40px rgba(0,0,0,.35)}
@@ -261,7 +262,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
             </div>
             <div id="shiftTargetTotal" class="shift-target-total">Chưa nhập Số lượng 1 ca</div>
           </div>
-          <button class="btn" onclick="saveOrder()">Lưu đơn hàng</button>
+          <div class="form-bottom-actions"><button id="orderFormCancelBtn" class="btn alt" type="button" onclick="toggleOrderForm()">Hủy</button><button id="orderFormSaveBtn" class="btn" type="button" onclick="saveOrder()">Lưu đơn hàng</button></div>
         </div>
         <div id="ordersList" class="order-form-list"></div>
       </div>
@@ -311,7 +312,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
             <div class="field"><label>Tới ngày</label><div class="date-shell"><input id="breakdownTo" class="date-native" type="date" aria-label="Tới ngày máy hư" /><div id="breakdownToDisplay" class="date-display empty" role="button" tabindex="0" aria-label="Chọn tới ngày máy hư">DD/MM/YYYY</div></div></div>
           </div>
           <div class="field"><label>Lý do *</label><input id="breakdownReason" placeholder="VD: Hư motor" /></div>
-          <div class="field breakdown-photo-field"><label>Ảnh đính kèm</label><div class="breakdown-action-row"><label class="btn alt small breakdown-photo-btn">📷 Chọn ảnh<input id="breakdownPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handleBreakdownPhoto(event)" /></label><button id="machineBreakdownSaveBtn" class="btn small breakdown-save-btn" type="button" onclick="saveMachineBreakdown()">Lưu report</button></div><div id="breakdownPhotoPreview" class="breakdown-photo-preview"><img id="breakdownPhotoPreviewImg" alt="Ảnh máy hư đã chọn" /><div class="breakdown-photo-preview-meta"><div class="breakdown-photo-preview-text">Đã chọn ảnh</div><button class="btn alt small" type="button" onclick="clearBreakdownPhoto()">Bỏ ảnh</button></div></div></div>
+          <div class="field breakdown-photo-field"><label>Ảnh đính kèm</label><div class="breakdown-action-row"><label class="btn alt small breakdown-photo-btn">📷 Chọn ảnh<input id="breakdownPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handleBreakdownPhoto(event)" /></label><div class="form-bottom-actions"><button id="machineBreakdownCancelBtn" class="btn alt small" type="button" onclick="toggleMachineBreakdownForm()">Hủy</button><button id="machineBreakdownSaveBtn" class="btn small breakdown-save-btn" type="button" onclick="saveMachineBreakdown()">Lưu report</button></div></div><div id="breakdownPhotoPreview" class="breakdown-photo-preview"><img id="breakdownPhotoPreviewImg" alt="Ảnh máy hư đã chọn" /><div class="breakdown-photo-preview-meta"><div class="breakdown-photo-preview-text">Đã chọn ảnh</div><button class="btn alt small" type="button" onclick="clearBreakdownPhoto()">Bỏ ảnh</button></div></div></div>
         </div>
         <div id="machineBreakdownList" class="breakdown-list"></div>
       </div>
@@ -369,7 +370,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.86';
+const BUILD='v0.1.88';
 let productionEditMode=false;
 let itemListEditMode=false;
 let orderItemFormOpen=false;
@@ -451,7 +452,7 @@ function clearBreakdownPhoto(){pendingBreakdownPhoto='';const input=document.get
 function openMachineBreakdownPhoto(id){const row=(state.machineBreakdowns||[]).find(x=>x.id===id);const photo=safeBreakdownPhoto(row?.photoData);if(!photo)return;const viewer=document.getElementById('photoViewer'),img=document.getElementById('photoViewerImg');if(!viewer||!img)return;img.src=photo;viewer.classList.add('open');document.body.style.overflow='hidden'}
 let machineBreakdownFormOpen=false;
 let machineBreakdownEditId='';
-function syncMachineBreakdownFormUI(){const panel=document.getElementById('machineBreakdownFormFields'),btn=document.getElementById('machineBreakdownFormToggle'),saveBtn=document.getElementById('machineBreakdownSaveBtn');if(panel)panel.hidden=!machineBreakdownFormOpen;if(btn)btn.textContent=machineBreakdownFormOpen?'Hủy':'+ Report';if(saveBtn)saveBtn.textContent=machineBreakdownEditId?'Lưu cập nhật':'Lưu report'}
+function syncMachineBreakdownFormUI(){const panel=document.getElementById('machineBreakdownFormFields'),btn=document.getElementById('machineBreakdownFormToggle'),saveBtn=document.getElementById('machineBreakdownSaveBtn');if(panel)panel.hidden=!machineBreakdownFormOpen;if(btn){btn.textContent='+ Report';btn.style.display=machineBreakdownFormOpen?'none':''}if(saveBtn)saveBtn.textContent=machineBreakdownEditId?'Lưu cập nhật':'Lưu report'}
 function resetMachineBreakdownForm(useToday=false){const from=document.getElementById('breakdownFrom'),to=document.getElementById('breakdownTo'),reason=document.getElementById('breakdownReason');if(from)from.value=useToday?todayISO():'';if(to)to.value='';if(reason)reason.value='';machineBreakdownEditId='';clearBreakdownPhoto();syncDateDisplay('breakdownFrom');syncDateDisplay('breakdownTo')}
 function toggleMachineBreakdownForm(){if(machineBreakdownFormOpen){machineBreakdownFormOpen=false;resetMachineBreakdownForm(false)}else{resetMachineBreakdownForm(true);machineBreakdownFormOpen=true}syncMachineBreakdownFormUI()}
 function editMachineBreakdown(id){const row=(state.machineBreakdowns||[]).find(x=>x.id===id);if(!row)return;machineBreakdownEditId=id;machineBreakdownFormOpen=true;document.getElementById('breakdownFrom').value=row.fromDate||'';document.getElementById('breakdownTo').value=row.toDate&&row.toDate!==row.fromDate?row.toDate:'';document.getElementById('breakdownReason').value=row.reason||'';pendingBreakdownPhoto=safeBreakdownPhoto(row.photoData);const input=document.getElementById('breakdownPhotoInput');if(input)input.value='';syncDateDisplay('breakdownFrom');syncDateDisplay('breakdownTo');renderBreakdownPhotoPreview();syncMachineBreakdownFormUI();document.getElementById('machineBreakdownCard')?.scrollIntoView({behavior:'smooth',block:'start'})}
@@ -526,7 +527,7 @@ function deleteThreadCode(rawCode){const code=decodeURIComponent(rawCode);if(!co
 function renderSettings(){document.getElementById('cartonSize').value=state.settings.cartonSize;const makeCap=d=>`<div class="capacity-item"><div class="capacity-day">${dayNames[d]}</div><input class="capacity-input" data-cap-day="${d}" type="number" min="0" inputmode="numeric" value="${state.settings.capacity[d]}" aria-label="Năng lực ${dayNames[d]}"></div>`;document.getElementById('capacityRows').innerHTML=`<div class="capacity-col">${[1,2,3,4].map(makeCap).join('')}</div><div class="capacity-col">${[5,6,0].map(makeCap).join('')}</div>`;renderSkuColorConfig();populateThreadSku();renderThreadCodeConfig();}
 function saveSettings(){state.settings.cartonSize=Math.max(1,Number(document.getElementById('cartonSize').value||110));document.querySelectorAll('[data-cap-day]').forEach(el=>state.settings.capacity[el.dataset.capDay]=Math.max(0,Number(el.value||0)));persist();renderAll();alert('Đã lưu cấu hình')}
 
-function syncOrderFormUI(){const panel=document.getElementById('orderFormFields'),btn=document.getElementById('orderFormToggle');if(panel)panel.hidden=!orderFormOpen;if(btn)btn.textContent=orderFormOpen?'Hủy':'+ Đơn hàng'}
+function syncOrderFormUI(){const panel=document.getElementById('orderFormFields'),btn=document.getElementById('orderFormToggle'),saveBtn=document.getElementById('orderFormSaveBtn');if(panel)panel.hidden=!orderFormOpen;if(btn){btn.textContent='+ Đơn hàng';btn.style.display=orderFormOpen?'none':''}if(saveBtn)saveBtn.textContent=document.getElementById('orderCode')?.dataset.editId?'Lưu cập nhật':'Lưu đơn hàng'}
 function resetOrderFormFields(useDefaults=false){const code=document.getElementById('orderCode'),start=document.getElementById('startDate'),ship=document.getElementById('shipDate');if(code){code.value='';delete code.dataset.editId}if(start)start.value=useDefaults?todayISO():'';if(ship)ship.value=useDefaults?addDays(todayISO(),7):'';document.getElementById('shiftTargetCartons').value=0;document.getElementById('shiftTargetPieces').value=0;document.getElementById('shiftTargetTotal').textContent='Chưa nhập Số lượng 1 ca';syncOrderDateDisplays()}
 function toggleOrderForm(){if(orderFormOpen){orderFormOpen=false;resetOrderFormFields(false)}else{resetOrderFormFields(true);orderFormOpen=true}syncOrderFormUI()}
 function saveOrder(){const code=document.getElementById('orderCode').value.trim(),startDate=document.getElementById('startDate').value,shipDate=document.getElementById('shipDate').value;if(!code||!startDate||!shipDate){alert('Cần nhập Mã đơn hàng, Ngày bắt đầu và Ngày xuất.');return}const id=document.getElementById('orderCode').dataset.editId;let o=id?state.orders.find(x=>x.id===id):null;if(!o){o={id:uid(),items:[],createdAt:new Date().toISOString()};state.orders.unshift(o)}Object.assign(o,{code,startDate,shipDate,annex:'',note:''});state.activeOrderId=o.id;saveShiftTargetFromForm(false,o.id);orderFormOpen=false;resetOrderFormFields(false);persist();renderAll();syncOrderFormUI()}
@@ -569,6 +570,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.86</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.88</span></div>
 </body>
 </html>
