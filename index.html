@@ -79,10 +79,10 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .home-delay-stepper{display:flex;align-items:center;gap:7px;flex:0 0 auto}
 .home-delay-stepper button{width:34px;height:34px;min-height:34px;padding:0;border:1px solid #cfcfcf;border-radius:10px;background:#fff;color:#111;font-size:20px;font-weight:750;line-height:1}
 .home-delay-stepper button:disabled{opacity:.35;cursor:default}
-.home-delay-stepper-value{min-width:78px;text-align:center;font-size:13px;font-weight:800;white-space:nowrap;display:flex;flex-direction:column;align-items:center;line-height:1.05}.home-delay-stepper-days{margin-top:3px;font-size:11px;font-weight:600;color:var(--muted)}
+.home-delay-stepper-value{width:88px;min-width:88px;text-align:center;font-size:13px;font-weight:800;white-space:nowrap;display:flex;flex-direction:column;align-items:center;line-height:1.05}.home-delay-stepper-days{margin-top:3px;font-size:11px;font-weight:600;color:var(--muted)}
 .home-delay-proposed-date{margin-top:7px;font-size:13px;color:var(--muted)}
 .home-delay-result{margin-top:9px;border:1px solid #b9ddcd;background:#f5fbf8;border-radius:11px;padding:9px 10px;color:var(--ok);font-size:13px;font-weight:750;line-height:1.25;white-space:nowrap}
-@media(max-width:430px){.home-delay-sim{padding:11px 12px}.home-delay-sim-title{font-size:13px}.home-delay-stepper{gap:5px}.home-delay-stepper button{width:32px;height:32px;min-height:32px}.home-delay-stepper-value{min-width:74px;font-size:12px}.home-progress-alert-text,.home-delay-result{font-size:11.5px;letter-spacing:-.1px}}
+@media(max-width:430px){.home-delay-sim{padding:11px 12px}.home-delay-sim-title{font-size:13px}.home-delay-stepper{gap:5px}.home-delay-stepper button{width:32px;height:32px;min-height:32px}.home-delay-stepper-value{width:88px;min-width:88px;font-size:12px}.home-progress-alert-text,.home-delay-result{font-size:11.5px;letter-spacing:-.1px}}
 #home>.card{margin-top:0}
 @media(max-width:390px){.home-kpi-shift .metric{font-size:26px}.home-ship-date{font-size:13px}}
 @media(min-width:680px){.screen{padding:18px}.top{padding-left:20px;padding-right:20px}.kpi-wrap{grid-template-columns:repeat(4,1fr)}}
@@ -168,7 +168,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
   .device-preview-shell .home-delay-sim-title{font-size:13px}
   .device-preview-shell .home-delay-stepper{gap:5px}
   .device-preview-shell .home-delay-stepper button{width:32px;height:32px;min-height:32px}
-  .device-preview-shell .home-delay-stepper-value{min-width:74px;font-size:12px}
+  .device-preview-shell .home-delay-stepper-value{width:88px;min-width:88px;font-size:12px}
   .device-preview-shell .home-progress-alert-text,.device-preview-shell .home-delay-result{font-size:11.5px;letter-spacing:-.1px}
 </style>
 </head>
@@ -298,7 +298,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.67';
+const BUILD='v0.1.68';
 let productionEditMode=false;
 let itemListEditMode=false;
 const DEFAULT_SKU_COLORS={"STPP":["Black","Navy"],"GSTP":["Black","Blue","Yellow"],"STS":["Black"],"GWM":["Black","Navy","Grey"],"GPLU":["Black","Grey","Navy"],"GSTT":["Black"],"GHWS":["Black"],"STFP":["Black","Navy"],"Khác":["Khác"]};
@@ -465,6 +465,6 @@ function renderAll(){syncOrderDateDisplays();document.getElementById('headerSub'
 async function init(){await openDB();await loadState();if(!state.orders.length){state.orders=JSON.parse(JSON.stringify(SEEDED_RUNTIME_DATA.orders));state.production=JSON.parse(JSON.stringify(SEEDED_RUNTIME_DATA.production));state.shiftTargets=JSON.parse(JSON.stringify(SEEDED_RUNTIME_DATA.shiftTargets));state.activeOrderId=SEEDED_RUNTIME_DATA.activeOrderId||SEEDED_ORDER_ID;persist()}populateSku();const t=todayISO();document.getElementById('prodDate').value=t;document.getElementById('shipDate').value=addDays(t,7);document.getElementById('startDate').value=t;syncOrderDateDisplays();document.getElementById('startDate').addEventListener('change',()=>syncDateDisplay('startDate'));document.getElementById('shipDate').addEventListener('change',()=>syncDateDisplay('shipDate'));['startDate','shipDate'].forEach(id=>{const display=document.getElementById(id+'Display');if(display){display.addEventListener('click',()=>openOrderDatePicker(id));display.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openOrderDatePicker(id)}})}});document.getElementById('prodDate').addEventListener('change',()=>{syncDateDisplay('prodDate');renderProduction()});const prodDateDisplay=document.getElementById('prodDateDisplay');if(prodDateDisplay){prodDateDisplay.addEventListener('click',()=>openOrderDatePicker('prodDate'));prodDateDisplay.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openOrderDatePicker('prodDate')}})};document.getElementById('shiftTargetCartons')?.addEventListener('change',()=>saveShiftTargetFromForm());document.getElementById('shiftTargetPieces')?.addEventListener('change',()=>saveShiftTargetFromForm());const addSkuBtn=document.getElementById('addSkuBtn');if(addSkuBtn)addSkuBtn.addEventListener('click',addSkuConfig);const newSkuName=document.getElementById('newSkuName');if(newSkuName)newSkuName.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addSkuConfig()}});const skuColorConfig=document.getElementById('skuColorConfig');if(skuColorConfig&&!skuColorConfig.dataset.bound){skuColorConfig.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(!btn||!skuColorConfig.contains(btn))return;const action=btn.dataset.action,sku=btn.dataset.sku;if(action==='add-color')addColorConfig(sku);else if(action==='delete-sku')deleteSkuConfig(sku);else if(action==='delete-color')deleteColorConfig(sku,btn.dataset.color)});skuColorConfig.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const input=e.target.closest('[data-color-input]');if(!input)return;e.preventDefault();addColorConfig(input.dataset.colorInput)});skuColorConfig.dataset.bound='1'};document.getElementById('itemColor')?.addEventListener('change',refreshThreadHints);document.getElementById('prodColor')?.addEventListener('change',refreshThreadHints);document.getElementById('threadSku')?.addEventListener('change',refreshThreadColors);document.getElementById('addThreadMapBtn')?.addEventListener('click',addThreadMap);document.getElementById('threadCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addThreadMap()}});const threadBox=document.getElementById('threadCodeConfig');if(threadBox&&!threadBox.dataset.bound){threadBox.addEventListener('click',e=>{const btn=e.target.closest('[data-thread-action]');if(!btn)return;if(btn.dataset.threadAction==='delete-map')deleteThreadMap(btn.dataset.code,btn.dataset.index);else if(btn.dataset.threadAction==='delete-code')deleteThreadCode(btn.dataset.code)});threadBox.dataset.bound='1'};renderAll()}
 init();
 </script>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.67</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.68</span></div>
 </body>
 </html>
