@@ -103,6 +103,11 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 }
 @media(min-width:680px) and (max-width:899px){#settings.active{display:flex;flex-direction:column}.settings-data-card{order:99;margin-top:2px}}
 /* v0.1.37 — V38 desktop utility panel moved top-right outside main work column */
+/* v0.1.38 — desktop order dates: keep DD/MM/YYYY display clickable and open native picker */
+@media(min-width:681px){
+  #orders .date-native{pointer-events:none}
+  #orders .date-display{z-index:3;cursor:pointer;user-select:none}
+}
 @media print{.top,.bottom,.no-print{display:none!important}.screen{display:none!important}.screen#preview{display:block!important;padding:0}.card{border:0;padding:0}.app{max-width:none;padding:0}.preview{font-size:14px}}
 </style>
 </head>
@@ -125,8 +130,8 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
         <div class="section-title">Tạo / sửa đơn hàng</div>
         <div class="field"><label>Mã đơn hàng *</label><input id="orderCode" placeholder="VD: A-0709" /></div>
         <div class="grid2">
-          <div class="field"><label>Ngày bắt đầu *</label><div class="date-shell"><input id="startDate" class="date-native" type="date" aria-label="Ngày bắt đầu" /><div id="startDateDisplay" class="date-display empty" aria-hidden="true">DD/MM/YYYY</div></div></div>
-          <div class="field"><label>Ngày xuất *</label><div class="date-shell"><input id="shipDate" class="date-native" type="date" aria-label="Ngày xuất" /><div id="shipDateDisplay" class="date-display empty" aria-hidden="true">DD/MM/YYYY</div></div></div>
+          <div class="field"><label>Ngày bắt đầu *</label><div class="date-shell"><input id="startDate" class="date-native" type="date" aria-label="Ngày bắt đầu" /><div id="startDateDisplay" class="date-display empty" role="button" tabindex="0" aria-label="Chọn ngày bắt đầu">DD/MM/YYYY</div></div></div>
+          <div class="field"><label>Ngày xuất *</label><div class="date-shell"><input id="shipDate" class="date-native" type="date" aria-label="Ngày xuất" /><div id="shipDateDisplay" class="date-display empty" role="button" tabindex="0" aria-label="Chọn ngày xuất">DD/MM/YYYY</div></div></div>
         </div>
         <div class="shift-target-wrap">
           <div class="shift-target-title">Số lượng 1 ca</div>
@@ -228,7 +233,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div></nav>
 
 <script>
-const BUILD='v0.1.37';
+const BUILD='v0.1.38';
 let productionEditMode=false;
 let itemListEditMode=false;
 const DEFAULT_SKU_COLORS={STPP:['Black','Navy'],GSTP:['Black','Blue','Yellow'],STS:['Black'],GWM:['Black','Navy','Grey'],GPLU:['Black','Grey','Navy'],GSTT:['Black'],GHWS:['Black'],'Khác':['Khác']};
@@ -260,6 +265,7 @@ function todayISO(){const d=new Date(); const z=new Date(d.getTime()-d.getTimezo
 function fmtDate(s){if(!s)return '—'; const [y,m,d]=s.split('-');return `${d}/${m}/${y}`}
 function syncDateDisplay(id){const input=document.getElementById(id),display=document.getElementById(id+'Display');if(!input||!display)return;const value=input.value||'';display.textContent=value?fmtDate(value):'DD/MM/YYYY';display.classList.toggle('empty',!value)}
 function syncOrderDateDisplays(){syncDateDisplay('startDate');syncDateDisplay('shipDate');syncDateDisplay('prodDate')}
+function openOrderDatePicker(id){const input=document.getElementById(id);if(!input)return;try{if(typeof input.showPicker==='function'){input.showPicker();return}}catch(e){}input.focus();input.click()}
 function fmtN(n){return Number(n||0).toLocaleString('vi-VN')}
 function pencilIcon(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="pencil-stroke" d="M20 4.8 17.2 2 5.1 14.1 3 21l6.9-2.1L22 6.8 20 4.8Z"/><path class="pencil-stroke" d="m14.9 4.3 4.8 4.8M5.1 14.1l4.8 4.8"/><path class="pencil-fill" d="m3 21 1.1-3.5 2.4 2.4L3 21Z"/></svg>'}
 function esc(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
@@ -350,9 +356,9 @@ function resetData(){if(!confirm('Xóa toàn bộ dữ liệu trong máy này?')
 
 function renderAll(){syncOrderDateDisplays();document.getElementById('headerSub').textContent=`1 thùng = ${state.settings.cartonSize} cái · Build ${BUILD}`;renderHome();renderOrders();renderProduction();renderSettings();renderPreview()}
 
-async function init(){await openDB();await loadState();if(!state.orders.length){state.orders=[JSON.parse(JSON.stringify(SEEDED_ORDER))];state.activeOrderId=SEEDED_ORDER_ID;persist()}populateSku();const t=todayISO();document.getElementById('prodDate').value=t;document.getElementById('shipDate').value=addDays(t,7);document.getElementById('startDate').value=t;syncOrderDateDisplays();document.getElementById('startDate').addEventListener('change',()=>syncDateDisplay('startDate'));document.getElementById('shipDate').addEventListener('change',()=>syncDateDisplay('shipDate'));document.getElementById('prodDate').addEventListener('change',()=>{syncDateDisplay('prodDate');renderProduction()});document.getElementById('shiftTargetCartons')?.addEventListener('change',()=>saveShiftTargetFromForm());document.getElementById('shiftTargetPieces')?.addEventListener('change',()=>saveShiftTargetFromForm());const addSkuBtn=document.getElementById('addSkuBtn');if(addSkuBtn)addSkuBtn.addEventListener('click',addSkuConfig);const newSkuName=document.getElementById('newSkuName');if(newSkuName)newSkuName.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addSkuConfig()}});const skuColorConfig=document.getElementById('skuColorConfig');if(skuColorConfig&&!skuColorConfig.dataset.bound){skuColorConfig.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(!btn||!skuColorConfig.contains(btn))return;const action=btn.dataset.action,sku=btn.dataset.sku;if(action==='add-color')addColorConfig(sku);else if(action==='delete-sku')deleteSkuConfig(sku);else if(action==='delete-color')deleteColorConfig(sku,btn.dataset.color)});skuColorConfig.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const input=e.target.closest('[data-color-input]');if(!input)return;e.preventDefault();addColorConfig(input.dataset.colorInput)});skuColorConfig.dataset.bound='1'};document.getElementById('itemColor')?.addEventListener('change',refreshThreadHints);document.getElementById('prodColor')?.addEventListener('change',refreshThreadHints);document.getElementById('threadSku')?.addEventListener('change',refreshThreadColors);document.getElementById('addThreadMapBtn')?.addEventListener('click',addThreadMap);document.getElementById('threadCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addThreadMap()}});const threadBox=document.getElementById('threadCodeConfig');if(threadBox&&!threadBox.dataset.bound){threadBox.addEventListener('click',e=>{const btn=e.target.closest('[data-thread-action]');if(!btn)return;if(btn.dataset.threadAction==='delete-map')deleteThreadMap(btn.dataset.code,btn.dataset.index);else if(btn.dataset.threadAction==='delete-code')deleteThreadCode(btn.dataset.code)});threadBox.dataset.bound='1'};renderAll()}
+async function init(){await openDB();await loadState();if(!state.orders.length){state.orders=[JSON.parse(JSON.stringify(SEEDED_ORDER))];state.activeOrderId=SEEDED_ORDER_ID;persist()}populateSku();const t=todayISO();document.getElementById('prodDate').value=t;document.getElementById('shipDate').value=addDays(t,7);document.getElementById('startDate').value=t;syncOrderDateDisplays();document.getElementById('startDate').addEventListener('change',()=>syncDateDisplay('startDate'));document.getElementById('shipDate').addEventListener('change',()=>syncDateDisplay('shipDate'));['startDate','shipDate'].forEach(id=>{const display=document.getElementById(id+'Display');if(display){display.addEventListener('click',()=>openOrderDatePicker(id));display.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openOrderDatePicker(id)}})}});document.getElementById('prodDate').addEventListener('change',()=>{syncDateDisplay('prodDate');renderProduction()});document.getElementById('shiftTargetCartons')?.addEventListener('change',()=>saveShiftTargetFromForm());document.getElementById('shiftTargetPieces')?.addEventListener('change',()=>saveShiftTargetFromForm());const addSkuBtn=document.getElementById('addSkuBtn');if(addSkuBtn)addSkuBtn.addEventListener('click',addSkuConfig);const newSkuName=document.getElementById('newSkuName');if(newSkuName)newSkuName.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addSkuConfig()}});const skuColorConfig=document.getElementById('skuColorConfig');if(skuColorConfig&&!skuColorConfig.dataset.bound){skuColorConfig.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(!btn||!skuColorConfig.contains(btn))return;const action=btn.dataset.action,sku=btn.dataset.sku;if(action==='add-color')addColorConfig(sku);else if(action==='delete-sku')deleteSkuConfig(sku);else if(action==='delete-color')deleteColorConfig(sku,btn.dataset.color)});skuColorConfig.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const input=e.target.closest('[data-color-input]');if(!input)return;e.preventDefault();addColorConfig(input.dataset.colorInput)});skuColorConfig.dataset.bound='1'};document.getElementById('itemColor')?.addEventListener('change',refreshThreadHints);document.getElementById('prodColor')?.addEventListener('change',refreshThreadHints);document.getElementById('threadSku')?.addEventListener('change',refreshThreadColors);document.getElementById('addThreadMapBtn')?.addEventListener('click',addThreadMap);document.getElementById('threadCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addThreadMap()}});const threadBox=document.getElementById('threadCodeConfig');if(threadBox&&!threadBox.dataset.bound){threadBox.addEventListener('click',e=>{const btn=e.target.closest('[data-thread-action]');if(!btn)return;if(btn.dataset.threadAction==='delete-map')deleteThreadMap(btn.dataset.code,btn.dataset.index);else if(btn.dataset.threadAction==='delete-code')deleteThreadCode(btn.dataset.code)});threadBox.dataset.bound='1'};renderAll()}
 init();
 </script>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.37</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.38</span></div>
 </body>
 </html>
