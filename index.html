@@ -116,6 +116,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .form-bottom-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}.form-bottom-actions .btn{white-space:nowrap}
 .standard-save-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%;margin-top:4px}.standard-save-actions .btn{width:100%;min-width:0;text-align:center}
 .order-form-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%;margin-top:4px}
+.order-form-actions.is-edit-bottom{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .order-form-actions .btn{width:100%;min-width:0;text-align:center}
 .btn.action-save{background:#0a66ff;border-color:#0a66ff;color:#fff}
 .btn.action-save:active{background:#0758d9;border-color:#0758d9}
@@ -272,7 +273,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
             </div>
             <div id="shiftTargetTotal" class="shift-target-total">Chưa nhập Số lượng 1 ca</div>
           </div>
-          <div class="form-bottom-actions order-form-actions"><button id="orderFormCancelBtn" class="btn alt action-cancel" type="button" onclick="toggleOrderForm()">Hủy</button><button id="orderFormSaveBtn" class="btn action-save" type="button" onclick="saveOrder()">Lưu lại</button></div>
+          <div id="orderFormActions" class="form-bottom-actions order-form-actions"><button id="orderFormCancelBtn" class="btn alt action-cancel" type="button" onclick="toggleOrderForm()">Hủy</button><button id="orderFormSaveBtn" class="btn action-save" type="button" onclick="saveOrder()">Lưu lại</button></div>
         </div>
         <div id="ordersList" class="order-form-list"></div>
       </div>
@@ -382,7 +383,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.93';
+const BUILD='v0.1.94';
 let productionEditMode=false;
 let itemListEditMode=false;
 let orderItemFormOpen=false;
@@ -541,7 +542,8 @@ function renderSettings(){document.getElementById('cartonSize').value=state.sett
 function cancelSettingsChanges(){renderSettings()}
 function saveSettings(){state.settings.cartonSize=Math.max(1,Number(document.getElementById('cartonSize').value||110));document.querySelectorAll('[data-cap-day]').forEach(el=>state.settings.capacity[el.dataset.capDay]=Math.max(0,Number(el.value||0)));persist();renderAll();alert('Đã lưu cấu hình')}
 
-function syncOrderFormUI(){const panel=document.getElementById('orderFormFields'),btn=document.getElementById('orderFormToggle'),saveBtn=document.getElementById('orderFormSaveBtn');if(panel)panel.hidden=!orderFormOpen;if(btn){btn.textContent='+ Đơn hàng';btn.style.display=orderFormOpen?'none':''}if(saveBtn)saveBtn.textContent='Lưu lại'}
+function syncOrderFormActionsPosition(){const actions=document.getElementById('orderFormActions'),panel=document.getElementById('orderFormFields'),editor=document.getElementById('itemEditorCard');if(!actions||!panel)return;const editing=orderFormOpen&&!!document.getElementById('orderCode')?.dataset.editId;if(editing&&editor){editor.appendChild(actions);actions.classList.add('is-edit-bottom')}else{panel.appendChild(actions);actions.classList.remove('is-edit-bottom')}}
+function syncOrderFormUI(){const panel=document.getElementById('orderFormFields'),btn=document.getElementById('orderFormToggle'),saveBtn=document.getElementById('orderFormSaveBtn');if(panel)panel.hidden=!orderFormOpen;if(btn){btn.textContent='+ Đơn hàng';btn.style.display=orderFormOpen?'none':''}if(saveBtn)saveBtn.textContent='Lưu lại';syncOrderFormActionsPosition()}
 function resetOrderFormFields(useDefaults=false){const code=document.getElementById('orderCode'),start=document.getElementById('startDate'),ship=document.getElementById('shipDate');if(code){code.value='';delete code.dataset.editId}if(start)start.value=useDefaults?todayISO():'';if(ship)ship.value=useDefaults?addDays(todayISO(),7):'';document.getElementById('shiftTargetCartons').value=0;document.getElementById('shiftTargetPieces').value=0;document.getElementById('shiftTargetTotal').textContent='Chưa nhập Số lượng 1 ca';syncOrderDateDisplays()}
 function toggleOrderForm(){if(orderFormOpen){orderFormOpen=false;resetOrderFormFields(false)}else{resetOrderFormFields(true);orderFormOpen=true}syncOrderFormUI()}
 function saveOrder(){const code=document.getElementById('orderCode').value.trim(),startDate=document.getElementById('startDate').value,shipDate=document.getElementById('shipDate').value;if(!code||!startDate||!shipDate){alert('Cần nhập Mã đơn hàng, Ngày bắt đầu và Ngày xuất.');return}const id=document.getElementById('orderCode').dataset.editId;let o=id?state.orders.find(x=>x.id===id):null;if(!o){o={id:uid(),items:[],createdAt:new Date().toISOString()};state.orders.unshift(o)}Object.assign(o,{code,startDate,shipDate,annex:'',note:''});state.activeOrderId=o.id;saveShiftTargetFromForm(false,o.id);orderFormOpen=false;resetOrderFormFields(false);persist();renderAll();syncOrderFormUI()}
@@ -588,6 +590,7 @@ function renderOrders(){
     return `<div class="list-item order-record${active?' is-active':''}"><div class="row between"><div><div class="code">${esc(x.code)}</div><div class="hint">Bắt đầu ${fmtDate(x.startDate)} · Xuất ${fmtDate(x.shipDate)}</div></div><span class="pill ${active?'ok':''}">${active?'Đang chọn':'Chọn'}</span></div><div class="hint" style="margin-top:7px">Giao: <b>${fmtN(total)}</b> · Đã may: <b>${fmtN(prod)}</b> · Còn: <b>${fmtN(left)}</b></div><div class="row" style="margin-top:8px"><button class="btn alt small" onclick="setActiveOrder('${x.id}')">Dùng đơn này</button><button type="button" class="icon-edit" aria-label="Sửa đơn ${esc(x.code)}" title="Sửa đơn" onclick="editOrder('${x.id}')">${pencilIcon()}</button><button class="btn danger small" onclick="delOrder('${x.id}')">Xóa</button></div>${active?`<div class="order-items-context" id="orderItemsContext-${x.id}"></div>`:''}</div>`
   }).join(''):'<div class="empty">Chưa có đơn hàng.</div>';
   if(o&&editor){const context=document.getElementById(`orderItemsContext-${o.id}`);if(context){context.appendChild(editor);editor.style.display='block'}}
+  syncOrderFormActionsPosition();
   refreshProdColors()
 }
 
@@ -616,6 +619,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.93</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.94</span></div>
 </body>
 </html>
