@@ -113,10 +113,10 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .form-bottom-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}.form-bottom-actions .btn{white-space:nowrap}
 .order-form-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%;margin-top:4px}
 .order-form-actions .btn{width:100%;min-width:0;text-align:center}
-#orderFormCancelBtn{background:#fff;color:var(--ok);border-color:var(--ok)}
-#orderFormSaveBtn{background:var(--ok);color:#fff;border-color:var(--ok)}
-#orderFormCancelBtn:active{background:#f1f8f4}
-#orderFormSaveBtn:active{background:#12653f;border-color:#12653f}
+.btn.action-save{background:#0a66ff;border-color:#0a66ff;color:#fff}
+.btn.action-save:active{background:#0758d9;border-color:#0758d9}
+.btn.action-cancel{background:#fff;color:#0a66ff;border-color:#0a66ff}
+.btn.action-cancel:active{background:#eef5ff}
 .breakdown-photo-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .breakdown-photo-preview{display:none;align-items:center;gap:9px;margin-top:8px;padding:7px 9px;border:1px solid var(--line);border-radius:12px;background:#fafaf9}
 .breakdown-photo-preview.has-photo{display:flex}
@@ -268,7 +268,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
             </div>
             <div id="shiftTargetTotal" class="shift-target-total">Chưa nhập Số lượng 1 ca</div>
           </div>
-          <div class="form-bottom-actions order-form-actions"><button id="orderFormCancelBtn" class="btn alt" type="button" onclick="toggleOrderForm()">Hủy</button><button id="orderFormSaveBtn" class="btn" type="button" onclick="saveOrder()">Lưu đơn hàng</button></div>
+          <div class="form-bottom-actions order-form-actions"><button id="orderFormCancelBtn" class="btn alt action-cancel" type="button" onclick="toggleOrderForm()">Hủy</button><button id="orderFormSaveBtn" class="btn action-save" type="button" onclick="saveOrder()">Lưu đơn hàng</button></div>
         </div>
         <div id="ordersList" class="order-form-list"></div>
       </div>
@@ -286,7 +286,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
             <div class="field"><label>Số cái lẻ</label><input id="itemPieces" type="number" min="0" inputmode="numeric" value="0" /></div>
           </div>
           <div class="field"><label>Ghi chú kỹ thuật</label><input id="itemSpec" placeholder="VD: 45mm" /></div>
-          <div class="row"><button id="saveOrderItemBtn" class="btn" onclick="addOrderItem()">+ Thêm dòng hàng</button><button id="cancelOrderItemEditBtn" type="button" class="btn alt" style="display:none" onclick="cancelOrderItemEdit()">Hủy sửa</button></div>
+          <div class="row"><button id="saveOrderItemBtn" class="btn" onclick="addOrderItem()">+ Thêm dòng hàng</button><button id="cancelOrderItemEditBtn" type="button" class="btn alt action-cancel" style="display:none" onclick="cancelOrderItemEdit()">Hủy sửa</button></div>
         </div>
         <div id="orderItemsList"></div>
       </div>
@@ -303,7 +303,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
         </div>
         <div id="prodThreadCode" class="hint" style="margin:-2px 0 10px">Mã chỉ: —</div>
         <div class="field prod-qty-field"><label>Số cái may được *</label><input id="prodQty" type="number" min="0" inputmode="numeric" placeholder="VD: 40" /></div>
-                <button class="btn" onclick="addProduction()">Lưu sản lượng</button>
+                <button class="btn action-save" onclick="addProduction()">Lưu sản lượng</button>
       </div>
       <div class="card prod-day-card">
         <div class="row between"><div id="prodDayTitle" class="section-title">Sản lượng ngày DD/MM/YYYY</div><span id="prodCapPill" style="display:none" aria-hidden="true"></span></div>
@@ -318,7 +318,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
             <div class="field"><label>Tới ngày</label><div class="date-shell"><input id="breakdownTo" class="date-native" type="date" aria-label="Tới ngày máy hư" /><div id="breakdownToDisplay" class="date-display empty" role="button" tabindex="0" aria-label="Chọn tới ngày máy hư">DD/MM/YYYY</div></div></div>
           </div>
           <div class="field"><label>Lý do *</label><input id="breakdownReason" placeholder="VD: Hư motor" /></div>
-          <div class="field breakdown-photo-field"><label>Ảnh đính kèm</label><div class="breakdown-action-row"><label class="btn alt small breakdown-photo-btn">📷 Chọn ảnh<input id="breakdownPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handleBreakdownPhoto(event)" /></label><div class="form-bottom-actions"><button id="machineBreakdownCancelBtn" class="btn alt small" type="button" onclick="toggleMachineBreakdownForm()">Hủy</button><button id="machineBreakdownSaveBtn" class="btn small breakdown-save-btn" type="button" onclick="saveMachineBreakdown()">Lưu report</button></div></div><div id="breakdownPhotoPreview" class="breakdown-photo-preview"><img id="breakdownPhotoPreviewImg" alt="Ảnh máy hư đã chọn" /><div class="breakdown-photo-preview-meta"><div class="breakdown-photo-preview-text">Đã chọn ảnh</div><button class="btn alt small" type="button" onclick="clearBreakdownPhoto()">Bỏ ảnh</button></div></div></div>
+          <div class="field breakdown-photo-field"><label>Ảnh đính kèm</label><div class="breakdown-action-row"><label class="btn alt small breakdown-photo-btn">📷 Chọn ảnh<input id="breakdownPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handleBreakdownPhoto(event)" /></label><div class="form-bottom-actions"><button id="machineBreakdownCancelBtn" class="btn alt small action-cancel" type="button" onclick="toggleMachineBreakdownForm()">Hủy</button><button id="machineBreakdownSaveBtn" class="btn small breakdown-save-btn action-save" type="button" onclick="saveMachineBreakdown()">Lưu report</button></div></div><div id="breakdownPhotoPreview" class="breakdown-photo-preview"><img id="breakdownPhotoPreviewImg" alt="Ảnh máy hư đã chọn" /><div class="breakdown-photo-preview-meta"><div class="breakdown-photo-preview-text">Đã chọn ảnh</div><button class="btn alt small" type="button" onclick="clearBreakdownPhoto()">Bỏ ảnh</button></div></div></div>
         </div>
         <div id="machineBreakdownList" class="breakdown-list"></div>
       </div>
@@ -334,7 +334,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
         <div class="field"><label>Số cái / thùng</label><input id="cartonSize" type="number" min="1" /></div>
         <div class="section-title">Năng lực sản xuất theo ngày</div>
         <div id="capacityRows" class="capacity-grid" aria-label="Năng lực sản xuất theo ngày"></div>
-        <div style="height:10px"></div><button class="btn" onclick="saveSettings()">Lưu cấu hình</button>
+        <div style="height:10px"></div><button class="btn action-save" onclick="saveSettings()">Lưu cấu hình</button>
       </div>
       <div class="card settings-data-card">
         <div class="section-title">Dữ liệu</div>
@@ -376,7 +376,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.89';
+const BUILD='v0.1.90';
 let productionEditMode=false;
 let itemListEditMode=false;
 let orderItemFormOpen=false;
@@ -539,11 +539,11 @@ function toggleOrderForm(){if(orderFormOpen){orderFormOpen=false;resetOrderFormF
 function saveOrder(){const code=document.getElementById('orderCode').value.trim(),startDate=document.getElementById('startDate').value,shipDate=document.getElementById('shipDate').value;if(!code||!startDate||!shipDate){alert('Cần nhập Mã đơn hàng, Ngày bắt đầu và Ngày xuất.');return}const id=document.getElementById('orderCode').dataset.editId;let o=id?state.orders.find(x=>x.id===id):null;if(!o){o={id:uid(),items:[],createdAt:new Date().toISOString()};state.orders.unshift(o)}Object.assign(o,{code,startDate,shipDate,annex:'',note:''});state.activeOrderId=o.id;saveShiftTargetFromForm(false,o.id);orderFormOpen=false;resetOrderFormFields(false);persist();renderAll();syncOrderFormUI()}
 function clearOrderForm(){orderFormOpen=false;orderItemFormOpen=false;resetOrderFormFields(false);syncOrderFormUI()}
 function editOrder(id){const o=state.orders.find(x=>x.id===id);if(!o)return;orderItemFormOpen=false;orderFormOpen=true;state.activeOrderId=id;document.getElementById('orderCode').value=o.code;document.getElementById('orderCode').dataset.editId=id;document.getElementById('startDate').value=o.startDate||'';document.getElementById('shipDate').value=o.shipDate||'';loadShiftTargetInputs(id);syncOrderDateDisplays();renderOrders();syncOrderFormUI();document.getElementById('orderFormCard')?.scrollIntoView({behavior:'smooth',block:'start'})}
-function clearOrderItemForm(){document.getElementById('itemSpec').value='';document.getElementById('itemCartons').value=0;document.getElementById('itemPieces').value=0;delete document.getElementById('saveOrderItemBtn').dataset.editId;document.getElementById('saveOrderItemBtn').textContent='+ Thêm dòng hàng';document.getElementById('cancelOrderItemEditBtn').style.display='none'}
-function syncOrderItemFormUI(){const panel=document.getElementById('orderItemFormFields'),btn=document.getElementById('orderItemFormToggle');if(panel)panel.hidden=!orderItemFormOpen;if(btn)btn.textContent=orderItemFormOpen?'Hủy':'+ Hàng'}
+function clearOrderItemForm(){document.getElementById('itemSpec').value='';document.getElementById('itemCartons').value=0;document.getElementById('itemPieces').value=0;const saveBtn=document.getElementById('saveOrderItemBtn');delete saveBtn.dataset.editId;saveBtn.textContent='+ Thêm dòng hàng';saveBtn.classList.remove('action-save');document.getElementById('cancelOrderItemEditBtn').style.display='none'}
+function syncOrderItemFormUI(){const panel=document.getElementById('orderItemFormFields'),btn=document.getElementById('orderItemFormToggle');if(panel)panel.hidden=!orderItemFormOpen;if(btn){btn.textContent=orderItemFormOpen?'Hủy':'+ Hàng';btn.classList.toggle('action-cancel',orderItemFormOpen)}}
 function toggleOrderItemForm(){orderItemFormOpen=!orderItemFormOpen;if(orderItemFormOpen){clearOrderItemForm();refreshThreadHints()}else clearOrderItemForm();syncOrderItemFormUI()}
 function addOrderItem(){const o=activeOrder();if(!o){alert('Hãy lưu đơn trước.');return}const sku=document.getElementById('itemSku').value,color=document.getElementById('itemColor').value,cartons=Number(document.getElementById('itemCartons').value||0),pieces=Number(document.getElementById('itemPieces').value||0);if(!sku||!color||(cartons<=0&&pieces<=0)){alert('Cần Mã hàng, Màu và số lượng > 0.');return}const btn=document.getElementById('saveOrderItemBtn'),editId=btn.dataset.editId;const data={sku,color,cartons,pieces,spec:document.getElementById('itemSpec').value.trim()};if(editId){const item=o.items.find(i=>i.id===editId);if(!item)return;Object.assign(item,data)}else{o.items.push({id:uid(),source:'',...data})}clearOrderItemForm();orderItemFormOpen=false;persist();renderAll();syncOrderItemFormUI()}
-function editItem(id){const o=activeOrder();if(!o)return;const i=o.items.find(x=>x.id===id);if(!i)return;orderItemFormOpen=true;syncOrderItemFormUI();document.getElementById('itemSku').value=i.sku;refreshItemColors();document.getElementById('itemColor').value=i.color;refreshThreadHints();document.getElementById('itemCartons').value=Number(i.cartons||0);document.getElementById('itemPieces').value=Number(i.pieces||0);document.getElementById('itemSpec').value=i.spec||'';const btn=document.getElementById('saveOrderItemBtn');btn.dataset.editId=id;btn.textContent='Lưu chỉnh sửa';document.getElementById('cancelOrderItemEditBtn').style.display='inline-flex';document.getElementById('itemEditorCard').scrollIntoView({behavior:'smooth',block:'start'})}
+function editItem(id){const o=activeOrder();if(!o)return;const i=o.items.find(x=>x.id===id);if(!i)return;orderItemFormOpen=true;syncOrderItemFormUI();document.getElementById('itemSku').value=i.sku;refreshItemColors();document.getElementById('itemColor').value=i.color;refreshThreadHints();document.getElementById('itemCartons').value=Number(i.cartons||0);document.getElementById('itemPieces').value=Number(i.pieces||0);document.getElementById('itemSpec').value=i.spec||'';const btn=document.getElementById('saveOrderItemBtn');btn.dataset.editId=id;btn.textContent='Lưu chỉnh sửa';btn.classList.add('action-save');document.getElementById('cancelOrderItemEditBtn').style.display='inline-flex';document.getElementById('itemEditorCard').scrollIntoView({behavior:'smooth',block:'start'})}
 function cancelOrderItemEdit(){clearOrderItemForm();refreshThreadHints();orderItemFormOpen=false;syncOrderItemFormUI()}
 function toggleItemListEditMode(){itemListEditMode=!itemListEditMode;if(itemListEditMode){clearOrderItemForm();orderItemFormOpen=false}renderOrders()}
 function setItemQty(id,field,value){const o=activeOrder();if(!o)return;const i=o.items.find(x=>x.id===id);if(!i)return;const n=Math.max(0,Number(value||0));if(field==='cartons')i.cartons=n;else if(field==='pieces')i.pieces=n;persist();renderAll()}
@@ -576,6 +576,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.89</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.90</span></div>
 </body>
 </html>
