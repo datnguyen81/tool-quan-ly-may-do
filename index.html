@@ -103,6 +103,11 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 }
 @media(min-width:680px) and (max-width:899px){#settings.active{display:flex;flex-direction:column}.settings-data-card{order:99;margin-top:2px}}
 /* v0.1.37 — V38 desktop utility panel moved top-right outside main work column */
+/* v0.1.39 — center Sản lượng ngày card on PC + iPhone */
+.prod-day-card>.row{justify-content:center}
+.prod-day-card #prodDayTitle{width:100%;margin:3px 0 10px;text-align:center}
+.prod-day-card #prodDaySummary .grid2>div{text-align:center}
+
 /* v0.1.38 — desktop order dates: keep DD/MM/YYYY display clickable and open native picker */
 @media(min-width:681px){
   #orders .date-native{pointer-events:none}
@@ -175,7 +180,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
         <div class="field prod-qty-field"><label>Số cái may được *</label><input id="prodQty" type="number" min="0" inputmode="numeric" placeholder="VD: 40" /></div>
                 <button class="btn" onclick="addProduction()">Lưu sản lượng</button>
       </div>
-      <div class="card">
+      <div class="card prod-day-card">
         <div class="row between"><div id="prodDayTitle" class="section-title">Sản lượng ngày DD/MM/YYYY</div><span id="prodCapPill" style="display:none" aria-hidden="true"></span></div>
         <div id="prodDaySummary"></div>
       </div>
@@ -233,7 +238,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div></nav>
 
 <script>
-const BUILD='v0.1.38';
+const BUILD='v0.1.39';
 let productionEditMode=false;
 let itemListEditMode=false;
 const DEFAULT_SKU_COLORS={STPP:['Black','Navy'],GSTP:['Black','Blue','Yellow'],STS:['Black'],GWM:['Black','Navy','Grey'],GPLU:['Black','Grey','Navy'],GSTT:['Black'],GHWS:['Black'],'Khác':['Khác']};
@@ -359,6 +364,6 @@ function renderAll(){syncOrderDateDisplays();document.getElementById('headerSub'
 async function init(){await openDB();await loadState();if(!state.orders.length){state.orders=[JSON.parse(JSON.stringify(SEEDED_ORDER))];state.activeOrderId=SEEDED_ORDER_ID;persist()}populateSku();const t=todayISO();document.getElementById('prodDate').value=t;document.getElementById('shipDate').value=addDays(t,7);document.getElementById('startDate').value=t;syncOrderDateDisplays();document.getElementById('startDate').addEventListener('change',()=>syncDateDisplay('startDate'));document.getElementById('shipDate').addEventListener('change',()=>syncDateDisplay('shipDate'));['startDate','shipDate'].forEach(id=>{const display=document.getElementById(id+'Display');if(display){display.addEventListener('click',()=>openOrderDatePicker(id));display.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openOrderDatePicker(id)}})}});document.getElementById('prodDate').addEventListener('change',()=>{syncDateDisplay('prodDate');renderProduction()});document.getElementById('shiftTargetCartons')?.addEventListener('change',()=>saveShiftTargetFromForm());document.getElementById('shiftTargetPieces')?.addEventListener('change',()=>saveShiftTargetFromForm());const addSkuBtn=document.getElementById('addSkuBtn');if(addSkuBtn)addSkuBtn.addEventListener('click',addSkuConfig);const newSkuName=document.getElementById('newSkuName');if(newSkuName)newSkuName.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addSkuConfig()}});const skuColorConfig=document.getElementById('skuColorConfig');if(skuColorConfig&&!skuColorConfig.dataset.bound){skuColorConfig.addEventListener('click',e=>{const btn=e.target.closest('[data-action]');if(!btn||!skuColorConfig.contains(btn))return;const action=btn.dataset.action,sku=btn.dataset.sku;if(action==='add-color')addColorConfig(sku);else if(action==='delete-sku')deleteSkuConfig(sku);else if(action==='delete-color')deleteColorConfig(sku,btn.dataset.color)});skuColorConfig.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const input=e.target.closest('[data-color-input]');if(!input)return;e.preventDefault();addColorConfig(input.dataset.colorInput)});skuColorConfig.dataset.bound='1'};document.getElementById('itemColor')?.addEventListener('change',refreshThreadHints);document.getElementById('prodColor')?.addEventListener('change',refreshThreadHints);document.getElementById('threadSku')?.addEventListener('change',refreshThreadColors);document.getElementById('addThreadMapBtn')?.addEventListener('click',addThreadMap);document.getElementById('threadCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addThreadMap()}});const threadBox=document.getElementById('threadCodeConfig');if(threadBox&&!threadBox.dataset.bound){threadBox.addEventListener('click',e=>{const btn=e.target.closest('[data-thread-action]');if(!btn)return;if(btn.dataset.threadAction==='delete-map')deleteThreadMap(btn.dataset.code,btn.dataset.index);else if(btn.dataset.threadAction==='delete-code')deleteThreadCode(btn.dataset.code)});threadBox.dataset.bound='1'};renderAll()}
 init();
 </script>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.38</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.39</span></div>
 </body>
 </html>
