@@ -462,7 +462,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.118';
+const BUILD='v0.1.119';
 let productionEditMode=false;
 let productionFormOpen=false;
 let productionEditingId='';
@@ -657,7 +657,7 @@ function toggleItemListEditMode(){itemListEditMode=!itemListEditMode;if(itemList
 function setItemQty(id,field,value){const o=orderContextOrder();if(!o)return;const i=o.items.find(x=>x.id===id);if(!i)return;const n=Math.max(0,Number(value||0));if(field==='cartons')i.cartons=n;else if(field==='pieces')i.pieces=n;persist();renderAll()}
 function delItem(id){const o=orderContextOrder();if(!o)return;if(document.getElementById('saveOrderItemBtn')?.dataset.editId===id)clearOrderItemForm();o.items=o.items.filter(i=>i.id!==id);persist();renderAll()}
 function delOrder(id){if(!confirm('Xóa đơn này và toàn bộ sản lượng liên quan?'))return;state.orders=state.orders.filter(o=>o.id!==id);state.production=state.production.filter(p=>p.orderId!==id);state.shiftTargets=(state.shiftTargets||[]).filter(t=>t.orderId!==id);if(state.activeOrderId===id)state.activeOrderId=null;if(orderDetailId===id)orderDetailId='';normalizeOrderStatuses();persist();clearOrderForm();renderAll()}
-function backToOrderList(){orderDetailId='';orderItemFormOpen=false;itemListEditMode=false;orderFormOpen=false;clearOrderItemForm();resetOrderFormFields(false);renderOrders();syncOrderFormUI();document.getElementById('orderFormCard')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function backToOrderList(){orderDetailId='';orderItemFormOpen=false;itemListEditMode=false;orderFormOpen=false;clearOrderItemForm();resetOrderFormFields(false);renderOrders();syncOrderFormUI();const ordersList=document.getElementById('ordersList');if(ordersList)ordersList.hidden=false;const scroller=appContentScroller();if(scroller){scroller.scrollTop=0;requestAnimationFrame(()=>{scroller.scrollTop=0})}else window.scrollTo({top:0,behavior:'auto'})}
 function renderOrders(){
   if(orderDetailId&&!state.orders.some(x=>x.id===orderDetailId))orderDetailId='';
   const o=orderContextOrder();
@@ -743,6 +743,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.118</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.119</span></div>
 </body>
 </html>
