@@ -68,8 +68,8 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .preview-item-assigned{grid-column:4;display:flex;align-items:center;justify-content:center;justify-self:stretch;font-size:16px;font-weight:750;line-height:1.2;white-space:nowrap;color:#111;align-self:start;padding-top:14px}
 .preview-item-qty{grid-column:6;display:flex;align-items:center;justify-content:center;justify-self:stretch;font-size:16px;font-weight:850;line-height:1.2;white-space:nowrap;color:#111;align-self:start;padding-top:14px}
 @media(max-width:480px){#orders .grid2{width:100%;min-width:0}#orders .grid2>.field{min-width:0}#orders .date-shell,#orders .date-display{width:100%;max-width:100%;min-width:0}}
-#orders .shift-target-wrap{margin:4px 0 12px;}
-.shift-target-wrap{margin:2px 0 12px;padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:#fafafa}.shift-target-title{font-size:14px;font-weight:850;margin-bottom:8px;text-align:center}.shift-target-wrap .grid2{gap:8px}.shift-target-wrap .field{margin-bottom:4px}.shift-target-wrap .field label{font-size:11px}.shift-target-wrap input{min-height:46px!important;text-align:center;font-size:18px;font-weight:800}.shift-target-total{font-size:12px;color:var(--muted);margin-top:5px;text-align:right}
+#orders .shift-target-wrap{margin:12px 0 12px;}
+.shift-target-wrap{padding:4px 10px;border:1px solid var(--line);border-radius:12px;background:#fafafa;display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}.shift-target-title{font-size:13px;font-weight:850;white-space:nowrap;flex:0 0 auto}.shift-target-inline{display:flex;align-items:center;justify-content:flex-end;gap:5px;min-width:0;flex:1 1 auto}.shift-target-inline input{width:48px!important;min-width:48px!important;max-width:48px!important;height:36px!important;min-height:36px!important;padding:5px 6px!important;border-radius:9px!important;text-align:center;font-size:15px!important;font-weight:850!important}.shift-target-unit,.shift-target-plus{font-size:12px;font-weight:750;color:#555;white-space:nowrap}.shift-target-total{font-size:12px;color:var(--muted);margin:0 0 0 4px;text-align:right;white-space:nowrap}.order-total-card{margin-top:10px;margin-bottom:0}.order-total-card + .shift-target-wrap{margin-top:12px}
 
 /* v0.1.22 — V27/V28 */
 .home-kpi-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
@@ -311,15 +311,19 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
           </div>
           <div class="shift-target-wrap" id="shiftTargetWrap">
             <div class="shift-target-title">Số lượng 1 ca</div>
-            <div class="grid2">
-              <div class="field"><label>Số thùng</label><input id="shiftTargetCartons" type="number" min="0" inputmode="numeric" value="0" /></div>
-              <div class="field"><label>Số cái lẻ</label><input id="shiftTargetPieces" type="number" min="0" inputmode="numeric" value="0" /></div>
+            <div class="shift-target-inline">
+              <input id="shiftTargetCartons" type="number" min="0" inputmode="numeric" value="0" aria-label="Số thùng của 1 ca" />
+              <span class="shift-target-unit">T</span>
+              <span class="shift-target-plus">+</span>
+              <input id="shiftTargetPieces" type="number" min="0" inputmode="numeric" value="0" aria-label="Số cái lẻ của 1 ca" />
+              <span class="shift-target-unit">cái</span>
+              <div id="shiftTargetTotal" class="shift-target-total">Chưa nhập</div>
             </div>
-            <div id="shiftTargetTotal" class="shift-target-total">Chưa nhập Số lượng 1 ca</div>
           </div>
           <div id="orderFormActions" class="form-bottom-actions order-form-actions"><button id="orderFormDeleteBtn" class="btn danger" type="button" onclick="deleteCurrentOrder()" hidden>Xóa</button><button id="orderFormSaveBtn" class="btn action-save" type="button" onclick="saveOrder()">Lưu lại</button></div>
         </div>
         <div id="ordersList" class="order-form-list"></div>
+        <div id="orderDetailMount" hidden></div>
       </div>
 
       <div id="itemEditorParking" style="display:none">
@@ -462,7 +466,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.119';
+const BUILD='v0.1.120';
 let productionEditMode=false;
 let productionFormOpen=false;
 let productionEditingId='';
@@ -533,9 +537,9 @@ function shiftTargetRecord(orderId){const rows=(state.shiftTargets||[]).filter(x
 function shiftTargetQty(orderId){const t=shiftTargetRecord(orderId);if(!t)return null;return Math.max(0,Number(t.cartons||0))*Number(state.settings.cartonSize||110)+Math.max(0,Number(t.pieces||0))}
 function dailyTargetQty(orderId,date){const base=capacityFor(date);const q=shiftTargetQty(orderId);return q===null?base:(base>0?q:0)}
 function shiftTargetText(orderId){const t=shiftTargetRecord(orderId);if(!t)return '';const c=Math.max(0,Number(t.cartons||0)),p=Math.max(0,Number(t.pieces||0));if(c&&p)return `${fmtN(c)}T + ${fmtN(p)}`;if(c)return `${fmtN(c)}T`;if(p)return `${fmtN(p)} cái`;return ''}
-function loadShiftTargetInputs(orderId){const id=orderId||document.getElementById('orderCode')?.dataset.editId||'';const cEl=document.getElementById('shiftTargetCartons'),pEl=document.getElementById('shiftTargetPieces'),totalEl=document.getElementById('shiftTargetTotal');if(!cEl||!pEl||!totalEl)return;const t=id?shiftTargetRecord(id):null;cEl.value=t?Number(t.cartons||0):0;pEl.value=t?Number(t.pieces||0):0;const q=t?shiftTargetQty(id):null;totalEl.textContent=t?`= ${fmtN(q)} cái`:'Chưa nhập Số lượng 1 ca'}
-function refreshShiftTargetTotalPreview(){const c=Math.max(0,Number(document.getElementById('shiftTargetCartons')?.value||0)),p=Math.max(0,Number(document.getElementById('shiftTargetPieces')?.value||0)),totalEl=document.getElementById('shiftTargetTotal');if(totalEl)totalEl.textContent=(c>0||p>0)?`= ${fmtN(c*Number(state.settings.cartonSize||110)+p)} cái`:'Chưa nhập Số lượng 1 ca'}
-function saveShiftTargetFromForm(render=true,orderIdOverride=''){const orderId=orderIdOverride||document.getElementById('orderCode')?.dataset.editId||'';if(!orderId)return;state.shiftTargets=state.shiftTargets||[];const c=Math.max(0,Number(document.getElementById('shiftTargetCartons')?.value||0)),p=Math.max(0,Number(document.getElementById('shiftTargetPieces')?.value||0));state.shiftTargets=state.shiftTargets.filter(x=>x.orderId!==orderId);if(c>0||p>0)state.shiftTargets.push({orderId,date:'*',cartons:c,pieces:p,updatedAt:new Date().toISOString()});persist();const totalEl=document.getElementById('shiftTargetTotal');if(totalEl)totalEl.textContent=(c>0||p>0)?`= ${fmtN(c*Number(state.settings.cartonSize||110)+p)} cái`:'Chưa nhập Số lượng 1 ca';if(render)renderAll()}
+function loadShiftTargetInputs(orderId){const id=orderId||document.getElementById('orderCode')?.dataset.editId||'';const cEl=document.getElementById('shiftTargetCartons'),pEl=document.getElementById('shiftTargetPieces'),totalEl=document.getElementById('shiftTargetTotal');if(!cEl||!pEl||!totalEl)return;const t=id?shiftTargetRecord(id):null;cEl.value=t?Number(t.cartons||0):0;pEl.value=t?Number(t.pieces||0):0;const q=t?shiftTargetQty(id):null;totalEl.textContent=t?`= ${fmtN(q)} cái`:'Chưa nhập'}
+function refreshShiftTargetTotalPreview(){const c=Math.max(0,Number(document.getElementById('shiftTargetCartons')?.value||0)),p=Math.max(0,Number(document.getElementById('shiftTargetPieces')?.value||0)),totalEl=document.getElementById('shiftTargetTotal');if(totalEl)totalEl.textContent=(c>0||p>0)?`= ${fmtN(c*Number(state.settings.cartonSize||110)+p)} cái`:'Chưa nhập'}
+function saveShiftTargetFromForm(render=true,orderIdOverride=''){const orderId=orderIdOverride||document.getElementById('orderCode')?.dataset.editId||'';if(!orderId)return;state.shiftTargets=state.shiftTargets||[];const c=Math.max(0,Number(document.getElementById('shiftTargetCartons')?.value||0)),p=Math.max(0,Number(document.getElementById('shiftTargetPieces')?.value||0));state.shiftTargets=state.shiftTargets.filter(x=>x.orderId!==orderId);if(c>0||p>0)state.shiftTargets.push({orderId,date:'*',cartons:c,pieces:p,updatedAt:new Date().toISOString()});persist();const totalEl=document.getElementById('shiftTargetTotal');if(totalEl)totalEl.textContent=(c>0||p>0)?`= ${fmtN(c*Number(state.settings.cartonSize||110)+p)} cái`:'Chưa nhập';if(render)renderAll()}
 function addDays(dateStr,n){const d=new Date(dateStr+'T12:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10)}
 function theoreticalFinish(o, fromActual=false){if(!o)return null;const target=shiftProgressTotal(o);if(target<=0)return null;let left=fromActual?shiftProgressRemaining(o):target;if(left<=0)return fromActual?todayISO():(o.startDate||todayISO());let date=fromActual?todayISO():(o.startDate||todayISO());for(let k=0;k<730;k++){left-=capacityFor(date);if(left<=0)return date;date=addDays(date,1)}return null}
 function idealProductionSchedule(o){if(!o)return null;let left=shiftProgressTotal(o);const start=o.startDate||todayISO();if(left<=0)return null;let date=start,calendarDays=0,productionDays=0;for(let k=0;k<730;k++){calendarDays++;const cap=capacityFor(date);if(cap>0){productionDays++;left-=cap;if(left<=0)return {start,finish:date,calendarDays,productionDays}}date=addDays(date,1)}return null}
@@ -639,9 +643,9 @@ function renderSettings(){document.getElementById('cartonSize').value=state.sett
 function cancelSettingsChanges(){renderSettings()}
 function saveSettings(){state.settings.cartonSize=Math.max(1,Number(document.getElementById('cartonSize').value||110));document.querySelectorAll('[data-cap-day]').forEach(el=>state.settings.capacity[el.dataset.capDay]=Math.max(0,Number(el.value||0)));persist();renderAll();alert('Đã lưu cấu hình')}
 
-function syncOrderFormActionsPosition(){const actions=document.getElementById('orderFormActions'),panel=document.getElementById('orderFormFields'),editor=document.getElementById('itemEditorCard'),shiftWrap=document.getElementById('shiftTargetWrap');if(!actions||!panel)return;const editing=orderFormOpen&&!!document.getElementById('orderCode')?.dataset.editId;if(editing&&editor){if(shiftWrap)editor.appendChild(shiftWrap);editor.appendChild(actions);actions.classList.add('is-edit-bottom')}else{if(shiftWrap)panel.insertBefore(shiftWrap,actions);panel.appendChild(actions);actions.classList.remove('is-edit-bottom')}}
+function syncOrderFormActionsPosition(){const actions=document.getElementById('orderFormActions'),panel=document.getElementById('orderFormFields'),editor=document.getElementById('itemEditorCard'),shiftWrap=document.getElementById('shiftTargetWrap');if(!actions||!panel)return;const editing=orderFormOpen&&!!document.getElementById('orderCode')?.dataset.editId;if(editing&&editor){if(shiftWrap&&shiftWrap.parentElement!==editor)editor.appendChild(shiftWrap);if(actions.parentElement!==editor)editor.appendChild(actions);actions.classList.add('is-edit-bottom')}else{if(actions.parentElement!==panel)panel.appendChild(actions);if(shiftWrap){if(shiftWrap.parentElement!==panel)panel.insertBefore(shiftWrap,actions);else if(shiftWrap.nextElementSibling!==actions)panel.insertBefore(shiftWrap,actions)}actions.classList.remove('is-edit-bottom')}}
 function syncOrderFormUI(){const panel=document.getElementById('orderFormFields'),btn=document.getElementById('orderFormToggle'),saveBtn=document.getElementById('orderFormSaveBtn'),deleteBtn=document.getElementById('orderFormDeleteBtn'),backBtn=document.getElementById('orderBackBtn'),title=document.getElementById('orderFormTitle'),actions=document.getElementById('orderFormActions');const editId=orderFormOpen?(document.getElementById('orderCode')?.dataset.editId||''):'';const editing=!!editId;if(panel)panel.hidden=!orderFormOpen;if(btn){btn.textContent='+ Đơn hàng';btn.style.display=orderFormOpen?'none':''}if(backBtn)backBtn.hidden=!orderFormOpen;if(title)title.textContent=orderFormOpen?(editing?'Chỉnh sửa đơn hàng':'Thêm đơn hàng'):'Đơn hàng';if(deleteBtn)deleteBtn.hidden=!editing;if(actions)actions.style.gridTemplateColumns=editing?'minmax(0,1fr) minmax(0,1fr)':'minmax(0,1fr)';if(saveBtn)saveBtn.textContent='Lưu lại';syncOrderFormActionsPosition()}
-function resetOrderFormFields(useDefaults=false){const code=document.getElementById('orderCode'),start=document.getElementById('startDate'),ship=document.getElementById('shipDate');if(code){code.value='';delete code.dataset.editId}if(start)start.value=useDefaults?todayISO():'';if(ship)ship.value=useDefaults?addDays(todayISO(),7):'';document.getElementById('shiftTargetCartons').value=0;document.getElementById('shiftTargetPieces').value=0;document.getElementById('shiftTargetTotal').textContent='Chưa nhập Số lượng 1 ca';syncOrderDateDisplays()}
+function resetOrderFormFields(useDefaults=false){const code=document.getElementById('orderCode'),start=document.getElementById('startDate'),ship=document.getElementById('shipDate');if(code){code.value='';delete code.dataset.editId}if(start)start.value=useDefaults?todayISO():'';if(ship)ship.value=useDefaults?addDays(todayISO(),7):'';document.getElementById('shiftTargetCartons').value=0;document.getElementById('shiftTargetPieces').value=0;document.getElementById('shiftTargetTotal').textContent='Chưa nhập';syncOrderDateDisplays()}
 function toggleOrderForm(){if(orderFormOpen){backToOrderList();return}orderDetailId='';orderItemFormOpen=false;itemListEditMode=false;clearOrderItemForm();resetOrderFormFields(true);orderFormOpen=true;renderOrders();syncOrderFormUI();document.getElementById('orderFormCard')?.scrollIntoView({behavior:'smooth',block:'start'})}
 function saveOrder(){const code=document.getElementById('orderCode').value.trim(),startDate=document.getElementById('startDate').value,shipDate=document.getElementById('shipDate').value;if(!code||!startDate||!shipDate){alert('Cần nhập Mã đơn hàng, Ngày bắt đầu và Ngày xuất.');return}const id=document.getElementById('orderCode').dataset.editId;let o=id?state.orders.find(x=>x.id===id):null;const creating=!o;if(!o){o={id:uid(),items:[],status:'completed',createdAt:new Date().toISOString()};state.orders.unshift(o)}Object.assign(o,{code,startDate,shipDate,annex:'',note:''});if(creating)applyOrderStatus(o,'producing');saveShiftTargetFromForm(false,o.id);orderDetailId='';orderFormOpen=false;orderItemFormOpen=false;itemListEditMode=false;clearOrderItemForm();resetOrderFormFields(false);persist();renderAll();syncOrderFormUI()}
 function clearOrderForm(){orderFormOpen=false;orderItemFormOpen=false;resetOrderFormFields(false);syncOrderFormUI()}
@@ -657,7 +661,7 @@ function toggleItemListEditMode(){itemListEditMode=!itemListEditMode;if(itemList
 function setItemQty(id,field,value){const o=orderContextOrder();if(!o)return;const i=o.items.find(x=>x.id===id);if(!i)return;const n=Math.max(0,Number(value||0));if(field==='cartons')i.cartons=n;else if(field==='pieces')i.pieces=n;persist();renderAll()}
 function delItem(id){const o=orderContextOrder();if(!o)return;if(document.getElementById('saveOrderItemBtn')?.dataset.editId===id)clearOrderItemForm();o.items=o.items.filter(i=>i.id!==id);persist();renderAll()}
 function delOrder(id){if(!confirm('Xóa đơn này và toàn bộ sản lượng liên quan?'))return;state.orders=state.orders.filter(o=>o.id!==id);state.production=state.production.filter(p=>p.orderId!==id);state.shiftTargets=(state.shiftTargets||[]).filter(t=>t.orderId!==id);if(state.activeOrderId===id)state.activeOrderId=null;if(orderDetailId===id)orderDetailId='';normalizeOrderStatuses();persist();clearOrderForm();renderAll()}
-function backToOrderList(){orderDetailId='';orderItemFormOpen=false;itemListEditMode=false;orderFormOpen=false;clearOrderItemForm();resetOrderFormFields(false);renderOrders();syncOrderFormUI();const ordersList=document.getElementById('ordersList');if(ordersList)ordersList.hidden=false;const scroller=appContentScroller();if(scroller){scroller.scrollTop=0;requestAnimationFrame(()=>{scroller.scrollTop=0})}else window.scrollTo({top:0,behavior:'auto'})}
+function backToOrderList(){orderDetailId='';orderItemFormOpen=false;itemListEditMode=false;orderFormOpen=false;clearOrderItemForm();resetOrderFormFields(false);renderAll();const ordersList=document.getElementById('ordersList'),detailMount=document.getElementById('orderDetailMount');if(ordersList)ordersList.hidden=false;if(detailMount){detailMount.hidden=true;detailMount.innerHTML=''}const scroller=appContentScroller();const resetScroll=()=>{if(scroller)scroller.scrollTop=0;else window.scrollTo({top:0,behavior:'auto'})};resetScroll();requestAnimationFrame(()=>{renderOrders();if(ordersList)ordersList.hidden=false;if(detailMount)detailMount.hidden=true;resetScroll()})}
 function renderOrders(){
   if(orderDetailId&&!state.orders.some(x=>x.id===orderDetailId))orderDetailId='';
   const o=orderContextOrder();
@@ -683,19 +687,18 @@ function renderOrders(){
     const tools=itemsEditable?'':`<div class="order-items-tools"><span></span><button type="button" class="icon-edit" aria-label="Sửa số lượng hàng" title="Sửa số lượng" onclick="toggleItemListEditMode()">${pencilIcon()}</button></div>`;
     list.innerHTML=tools+rows
   }
-  const ordersList=document.getElementById('ordersList');
-  const creatingOrder=orderFormOpen&&!editingOrderId;
-  ordersList.hidden=creatingOrder;
-  if(creatingOrder){
-    ordersList.innerHTML='';
-  }else if(orderDetailId&&editingOrderId){
-    const x=state.orders.find(x=>x.id===orderDetailId);
-    ordersList.innerHTML=x?`<div class="order-items-context" id="orderItemsContext-${x.id}"></div>`:'<div class="empty">Không tìm thấy đơn hàng.</div>';
-  }else{
+  const ordersList=document.getElementById('ordersList'),orderDetailMount=document.getElementById('orderDetailMount');
+  const creatingOrder=orderFormOpen&&!editingOrderId,detailOpen=!!(orderDetailId&&editingOrderId);
+  if(ordersList){
     ordersList.innerHTML=state.orders.length?state.orders.map(x=>{
       const total=totalOrder(x),prod=producedTotal(x),left=remaining(x),status=orderStatusValue(x),active=status==='producing'&&x.id===state.activeOrderId;
       return `<div class="list-item order-record is-tappable${active?' is-active':''}" role="button" tabindex="0" aria-label="Mở đơn ${esc(x.code)}" onclick="editOrder('${x.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();editOrder('${x.id}')} "><div class="row between"><div><div class="code">${esc(x.code)}</div><div class="hint">Bắt đầu ${fmtDate(x.startDate)} · Xuất ${fmtDate(x.shipDate)}</div></div><select class="order-status-select${active?' is-producing':''}" aria-label="Trạng thái đơn ${esc(x.code)}" onclick="event.stopPropagation()" onpointerdown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onkeydown="event.stopPropagation()" onchange="setOrderStatusFromList('${x.id}',this.value,event)"><option value="producing"${active?' selected':''}>Đang SX</option><option value="completed"${!active?' selected':''}>Đã SX</option></select></div><div class="hint" style="margin-top:7px">Giao: <b>${fmtN(total)}</b> · Đã may: <b>${fmtN(prod)}</b> · Còn: <b>${fmtN(left)}</b></div></div>`
     }).join(''):'<div class="empty">Chưa có đơn hàng.</div>';
+    ordersList.hidden=creatingOrder||detailOpen;
+  }
+  if(orderDetailMount){
+    orderDetailMount.hidden=!detailOpen;
+    orderDetailMount.innerHTML=detailOpen?`<div class="order-items-context" id="orderItemsContext-${orderDetailId}"></div>`:'';
   }
   const orderTotalsSummary=document.getElementById('orderTotalsSummary');
   if(orderTotalsSummary){if(o){const cartonSize=Math.max(1,Number(state.settings.cartonSize||110)),total=totalOrder(o),cartons=Math.floor(total/cartonSize),pieces=total%cartonSize;orderTotalsSummary.hidden=false;orderTotalsSummary.innerHTML=`<div class="order-total-card-title">Tổng đơn hàng</div><div class="order-total-card-value">${fmtN(cartons)}T + ${fmtN(pieces)} cái <span class="order-total-card-pieces">= ${fmtN(total)} cái</span></div>`}else{orderTotalsSummary.hidden=true;orderTotalsSummary.innerHTML=''}}
@@ -743,6 +746,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.119</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.120</span></div>
 </body>
 </html>
