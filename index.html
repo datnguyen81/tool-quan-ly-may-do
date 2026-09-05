@@ -67,7 +67,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .preview-item-detail{grid-column:2;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;min-width:0;gap:2px;font-size:16px;font-weight:400;align-self:start;padding-top:14px}
 .preview-item-assigned{grid-column:4;display:flex;align-items:center;justify-content:center;justify-self:stretch;font-size:16px;font-weight:750;line-height:1.2;white-space:nowrap;color:#111;align-self:start;padding-top:14px}
 .preview-item-qty{grid-column:6;display:flex;align-items:center;justify-content:center;justify-self:stretch;font-size:16px;font-weight:850;line-height:1.2;white-space:nowrap;color:#111;align-self:start;padding-top:14px}
-/* v0.1.122 — V65: Lịch sử sản xuất dùng visual system của Preview */
+/* v0.1.123 — V65: Lịch sử sản xuất dùng visual system của Preview */
 .production-history-table{margin-top:2px}
 .production-history-columns-head,.production-history-line{display:grid;grid-template-columns:19fr 16fr 18fr 21fr 26fr;column-gap:6px;align-items:center}
 .production-history-columns-head{min-height:48px;padding:0;border-bottom:1px solid #e8e8e8;color:#444;font-size:15px;font-weight:600}
@@ -86,6 +86,10 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 @media(max-width:390px){.production-history-columns-head,.production-history-line{grid-template-columns:19fr 16fr 18fr 21fr 26fr;column-gap:5px}.production-history-columns-head{font-size:13px}.production-history-date,.production-history-sku,.production-history-color,.production-history-qty,.production-history-balance{font-size:14px}}
 @media(max-width:480px){#orders .grid2{width:100%;min-width:0}#orders .grid2>.field{min-width:0}#orders .date-shell,#orders .date-display{width:100%;max-width:100%;min-width:0}}
 #orders .shift-target-wrap{margin:4px 0 12px;}
+/* V66: nhịp dọc đồng nhất ở cuối form Đơn hàng */
+#orders .order-items-context-card>.order-total-card+#shiftTargetWrap{margin-top:12px}
+#orders .order-items-context-card>#shiftTargetWrap{margin-bottom:12px}
+#orders .order-items-context-card>.order-form-actions.is-edit-bottom{margin-top:0;padding-top:0;border-top:0}
 .shift-target-wrap{margin:2px 0 12px;padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:#fafafa}.shift-target-title{font-size:14px;font-weight:850;margin-bottom:8px;text-align:center}.shift-target-wrap .grid2{gap:8px}.shift-target-wrap .field{margin-bottom:4px}.shift-target-wrap .field label{font-size:11px}.shift-target-wrap input{min-height:46px!important;text-align:center;font-size:18px;font-weight:800}.shift-target-total{font-size:12px;color:var(--muted);margin-top:5px;text-align:right}
 
 /* v0.1.22 — V27/V28 */
@@ -485,7 +489,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.122';
+const BUILD='v0.1.123';
 let productionEditMode=false;
 let productionFormOpen=false;
 let productionEditingId='';
@@ -765,6 +769,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.122</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.123</span></div>
 </body>
 </html>
