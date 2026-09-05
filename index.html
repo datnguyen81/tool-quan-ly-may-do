@@ -29,9 +29,9 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .preview-head h2{margin:0;font-size:20px;font-weight:800}
 .preview-ship{font-size:15px;font-weight:500;white-space:nowrap;color:#333}
 .preview-group{margin-top:0;padding-top:8px;border-top:1px solid #cfcfcf}
-.preview-columns-head{display:grid;grid-template-columns:72px minmax(0,1fr) 84px 82px;gap:10px;align-items:end;padding:0 0 5px;border-bottom:1px solid #e8e8e8;color:var(--muted);font-size:10.5px;font-weight:700}
+.preview-columns-head{display:grid;grid-template-columns:72px minmax(0,1fr) 112px 82px;gap:10px;align-items:end;padding:0 0 5px;border-bottom:1px solid #e8e8e8;color:var(--muted);font-size:10.5px;font-weight:700}
 .preview-columns-head .preview-head-assigned{text-align:center;white-space:nowrap}.preview-columns-head .preview-head-produced{text-align:right;white-space:nowrap}
-.preview-item-line{display:grid;grid-template-columns:72px minmax(0,1fr) 84px 82px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #ececec}
+.preview-item-line{display:grid;grid-template-columns:72px minmax(0,1fr) 112px 82px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #ececec}
 .preview-item-line:last-child{border-bottom:0}
 .preview-item-sku-cell{font-size:17px;font-weight:850;white-space:nowrap}
 .preview-item-detail{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;gap:2px;font-size:17px;font-weight:400}
@@ -59,7 +59,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .home-kpi-finish{grid-column:1 / -1;margin-top:4px}
 .preview-item-color{display:inline-block;font-weight:500;color:#4f4f4f;white-space:nowrap}
 .preview-item-spec{display:block;font-size:10.5px;font-weight:500;line-height:1.15;color:#8a8a8a;white-space:nowrap}
-@media(max-width:390px){.home-kpi-shift .metric{font-size:18px}.preview-columns-head,.preview-item-line{grid-template-columns:66px minmax(0,1fr) 72px 72px;gap:7px}.preview-item-assigned{font-size:15px}.preview-item-qty{font-size:17px}.preview-item-spec{font-size:10px}}
+@media(max-width:390px){.home-kpi-shift .metric{font-size:18px}.preview-columns-head,.preview-item-line{grid-template-columns:66px minmax(0,1fr) 108px 72px;gap:7px}.preview-item-assigned{font-size:15px}.preview-item-qty{font-size:17px}.preview-item-spec{font-size:10px}}
 @media(max-width:430px){.home-ideal-days{gap:6px;padding:10px 10px!important}.home-ideal-days-label{font-size:13px;white-space:nowrap;flex:0 1 auto}.home-ideal-days-value{font-size:15px;white-space:nowrap;flex:0 0 auto;letter-spacing:-.15px}}
 /* v0.1.23 — V29/V30 */
 /* v0.1.25 — V31/V32/V33/V34 */
@@ -387,7 +387,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.97';
+const BUILD='v0.1.98';
 let productionEditMode=false;
 let itemListEditMode=false;
 let orderItemFormOpen=false;
@@ -635,6 +635,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.97</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.98</span></div>
 </body>
 </html>
