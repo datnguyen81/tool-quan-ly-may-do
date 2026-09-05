@@ -323,7 +323,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
           <div class="form-bottom-actions standard-save-actions"><button class="btn alt action-cancel" type="button" onclick="cancelProductionEntry()">Hủy</button><button id="productionSaveBtn" class="btn action-save" type="button" onclick="saveProductionEntry()">Lưu lại</button></div>
         </div>
       </div>
-      <div class="card prod-day-card">
+      <div class="card prod-day-card" id="prodDayCard" hidden>
         <div class="row between"><div id="prodDayTitle" class="section-title">Sản lượng ngày DD/MM/YYYY</div><span id="prodCapPill" style="display:none" aria-hidden="true"></span></div>
         <div id="prodDaySummary"></div>
       </div>
@@ -394,7 +394,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.105';
+const BUILD='v0.1.106';
 let productionEditMode=false;
 let productionFormOpen=false;
 let productionEditingId='';
@@ -621,7 +621,7 @@ function renderOrders(){
   refreshProdColors()
 }
 function refreshProdColors(){const o=activeOrder();const sku=document.getElementById('prodSku').value;const colors=[...new Set((o?.items||[]).filter(i=>i.sku===sku).map(i=>i.color))];document.getElementById('prodColor').innerHTML=colors.length?colors.map(c=>`<option>${esc(c)}</option>`).join(''):'<option value="">—</option>';refreshThreadHints()}
-function syncProductionFormUI(){const fields=document.getElementById('productionFormFields'),toggle=document.getElementById('productionFormToggle'),save=document.getElementById('productionSaveBtn');if(fields)fields.hidden=!productionFormOpen;if(toggle)toggle.style.display=productionFormOpen?'none':'';if(save)save.textContent='Lưu lại'}
+function syncProductionFormUI(){const fields=document.getElementById('productionFormFields'),toggle=document.getElementById('productionFormToggle'),save=document.getElementById('productionSaveBtn'),dayCard=document.getElementById('prodDayCard');if(fields)fields.hidden=!productionFormOpen;if(toggle)toggle.style.display=productionFormOpen?'none':'';if(dayCard)dayCard.hidden=!productionFormOpen;if(save)save.textContent='Lưu lại'}
 function openProductionForm(id=''){const o=activeOrder();if(!o){alert('Chưa chọn đơn hàng.');return}productionFormOpen=true;productionEditingId=id||'';const p=id?state.production.find(x=>x.id===id&&x.orderId===o.id):null;const date=document.getElementById('prodDate'),sku=document.getElementById('prodSku'),color=document.getElementById('prodColor'),qty=document.getElementById('prodQty');if(p){date.value=p.date||todayISO();if(sku){if(![...sku.options].some(opt=>opt.value===p.sku))sku.insertAdjacentHTML('beforeend',`<option value="${esc(p.sku)}">${esc(p.sku)}</option>`);sku.value=p.sku||''}refreshProdColors();if(color){if(![...color.options].some(opt=>opt.value===p.color))color.insertAdjacentHTML('beforeend',`<option value="${esc(p.color)}">${esc(p.color)}</option>`);color.value=p.color||''}if(qty)qty.value=Number(p.qty||0);productionEditMode=false}else{if(!date.value)date.value=todayISO();if(qty)qty.value='';refreshProdColors()}syncDateDisplay('prodDate');refreshThreadHints();syncProductionFormUI();renderProduction();requestAnimationFrame(()=>document.getElementById('productionEntryCard')?.scrollIntoView({behavior:'smooth',block:'start'}))}
 function cancelProductionEntry(){productionFormOpen=false;productionEditingId='';const qty=document.getElementById('prodQty');if(qty)qty.value='';syncProductionFormUI();renderProduction()}
 function saveProductionEntry(){const o=activeOrder();if(!o){alert('Chưa chọn đơn hàng.');return}const date=document.getElementById('prodDate').value,sku=document.getElementById('prodSku').value,color=document.getElementById('prodColor').value,qty=Number(document.getElementById('prodQty').value||0);if(!date||!sku||!color||qty<=0){alert('Cần nhập ngày, mã, màu và sản lượng > 0.');return}if(productionEditingId){const p=state.production.find(x=>x.id===productionEditingId&&x.orderId===o.id);if(!p){alert('Không tìm thấy dòng sản lượng cần sửa.');return}p.date=date;p.sku=sku;p.color=color;p.qty=qty;p.updatedAt=new Date().toISOString()}else{state.production.unshift({id:uid(),orderId:o.id,date,sku,color,qty,note:'',createdAt:new Date().toISOString()})}productionFormOpen=false;productionEditingId='';document.getElementById('prodQty').value='';persist();renderAll();syncProductionFormUI()}
@@ -648,6 +648,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.105</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.106</span></div>
 </body>
 </html>
