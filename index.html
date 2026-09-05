@@ -341,7 +341,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
         <div class="card production-detail-card">
           <div class="production-detail-head">
             <button id="productionDetailBack" class="production-detail-back" type="button" onclick="closeProductionDetail()" aria-label="Quay lại lịch sử sản xuất">‹</button>
-            <div class="section-title">Chỉnh sửa sản lượng</div>
+            <div id="productionDetailTitle" class="section-title">Chỉnh sửa sản lượng</div>
           </div>
           <div class="field"><label>Ngày *</label><div class="date-shell"><input id="prodDetailDate" class="date-native" type="date" aria-label="Ngày sản lượng" /><div id="prodDetailDateDisplay" class="date-display prod-date-display empty" role="button" tabindex="0" aria-label="Chọn ngày sản lượng">DD/MM/YYYY</div></div></div>
           <div class="grid2">
@@ -350,12 +350,12 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
           </div>
           <div id="prodDetailThreadCode" class="hint" style="margin:-2px 0 10px">Mã chỉ: —</div>
           <div class="field prod-qty-field"><label>Số cái may được *</label><input id="prodDetailQty" type="number" min="0" inputmode="numeric" placeholder="VD: 40" /></div>
-          <div class="production-detail-actions"><button class="btn danger" type="button" onclick="deleteProductionDetail()">Xóa</button><button class="btn action-save" type="button" onclick="saveProductionDetail()">Lưu lại</button></div>
+          <div id="productionDetailActions" class="production-detail-actions"><button id="productionDetailDeleteBtn" class="btn danger" type="button" onclick="deleteProductionDetail()">Xóa</button><button class="btn action-save" type="button" onclick="saveProductionDetail()">Lưu lại</button></div>
         </div>
       </div>
       <div id="productionMainView">
       <div class="card" id="productionEntryCard">
-        <div class="row between production-entry-head"><div class="section-title">Nhập sản lượng thực tế</div><button id="productionFormToggle" class="btn alt small" type="button" onclick="openProductionForm()">+ Thêm</button></div>
+        <div class="row between production-entry-head"><div class="section-title">Nhập sản lượng thực tế</div><button id="productionFormToggle" class="btn alt small" type="button" onclick="openProductionDetail()">+ Thêm</button></div>
         <div id="productionFormFields" hidden>
           <div class="field"><label>Ngày *</label><div class="date-shell"><input id="prodDate" class="date-native" type="date" aria-label="Ngày sản lượng" /><div id="prodDateDisplay" class="date-display prod-date-display empty" role="button" tabindex="0" aria-label="Chọn ngày sản lượng">DD/MM/YYYY</div></div></div>
           <div class="grid2">
@@ -446,11 +446,12 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.111';
+const BUILD='v0.1.112';
 let productionEditMode=false;
 let productionFormOpen=false;
 let productionEditingId='';
 let productionDetailId='';
+let productionDetailMode='';
 let productionPropertiesId='';
 let itemListEditMode=false;
 let orderItemFormOpen=false;
@@ -578,7 +579,7 @@ async function exportData(){
   }
 }
 
-function go(id){if(id!=='production'&&productionDetailId){productionDetailId='';syncProductionDetailView()}document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.go===id)); if(id==='preview')renderPreview(); if(id==='production')renderProduction(); if(id==='orders')renderOrders(); if(id==='settings')renderSettings(); if(id==='home')renderHome(); window.scrollTo(0,0)}
+function go(id){if(id!=='production'&&(productionDetailId||productionDetailMode)){productionDetailId='';productionDetailMode='';syncProductionDetailView()}document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.go===id)); if(id==='preview')renderPreview(); if(id==='production')renderProduction(); if(id==='orders')renderOrders(); if(id==='settings')renderSettings(); if(id==='home')renderHome(); window.scrollTo(0,0)}
 
 const SKU_DISPLAY_ORDER=['GSTP','GPLU','GWM','STFP','STS','GSTT'];
 const COLOR_DISPLAY_ORDER={GSTP:['Black','Blue','Yellow'],GPLU:['Black','Navy','Grey'],GWM:['Black','Navy','Grey'],STFP:['Black','Navy'],STS:['Black'],GSTT:['Black']};
@@ -679,11 +680,11 @@ function syncProductionFormUI(){const fields=document.getElementById('production
 function scrollProductionTop(){const app=document.querySelector('.device-preview-shell .app');if(window.innerWidth>=681&&app)app.scrollTo({top:0,behavior:'smooth'});else window.scrollTo({top:0,behavior:'smooth'})}
 function refreshProductionDetailThreadHint(){const sku=document.getElementById('prodDetailSku')?.value||'',color=document.getElementById('prodDetailColor')?.value||'',box=document.getElementById('prodDetailThreadCode');if(!box)return;const codes=threadCodesFor(sku,color);box.innerHTML=`Mã chỉ: <b>${codes.length?codes.map(esc).join(', '):'—'}</b>`}
 function refreshProductionDetailColors(preferredColor=''){const o=activeOrder(),sku=document.getElementById('prodDetailSku')?.value||'',color=document.getElementById('prodDetailColor');if(!color)return;const colors=[...new Set((o?.items||[]).filter(i=>i.sku===sku).map(i=>i.color))];if(preferredColor&&!colors.includes(preferredColor))colors.push(preferredColor);color.innerHTML=colors.length?colors.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''):'<option value="">—</option>';if(preferredColor&&colors.includes(preferredColor))color.value=preferredColor;refreshProductionDetailThreadHint()}
-function syncProductionDetailView(){const detail=document.getElementById('productionDetailView'),main=document.getElementById('productionMainView');const open=!!productionDetailId;if(detail)detail.hidden=!open;if(main)main.hidden=open}
-function openProductionDetail(id){const o=activeOrder();if(!o)return;const p=state.production.find(x=>x.id===id&&x.orderId===o.id);if(!p)return;productionDetailId=id;productionEditMode=false;productionFormOpen=false;productionEditingId='';closeProductionProperties();const date=document.getElementById('prodDetailDate'),sku=document.getElementById('prodDetailSku'),qty=document.getElementById('prodDetailQty');if(date)date.value=p.date||todayISO();if(sku){const skus=[...new Set((o.items||[]).map(i=>i.sku).filter(Boolean))];if(p.sku&&!skus.includes(p.sku))skus.push(p.sku);sku.innerHTML=skus.length?skus.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join(''):'<option value="">—</option>';sku.value=p.sku||''}refreshProductionDetailColors(p.color||'');if(qty)qty.value=Number(p.qty||0);syncDateDisplay('prodDetailDate');syncProductionFormUI();syncProductionDetailView();requestAnimationFrame(scrollProductionTop)}
-function closeProductionDetail(){productionDetailId='';syncProductionDetailView();renderProduction();requestAnimationFrame(scrollProductionTop)}
-function saveProductionDetail(){const o=activeOrder(),p=state.production.find(x=>x.id===productionDetailId&&x.orderId===o?.id);if(!p){alert('Không tìm thấy dòng sản lượng cần sửa.');return}const date=document.getElementById('prodDetailDate')?.value||'',sku=document.getElementById('prodDetailSku')?.value||'',color=document.getElementById('prodDetailColor')?.value||'',qty=Number(document.getElementById('prodDetailQty')?.value||0);if(!date||!sku||!color||qty<=0){alert('Cần nhập ngày, mã, màu và sản lượng > 0.');return}p.date=date;p.sku=sku;p.color=color;p.qty=qty;p.updatedAt=new Date().toISOString();productionDetailId='';persist();renderAll();syncProductionDetailView();requestAnimationFrame(scrollProductionTop)}
-function deleteProductionDetail(){const p=state.production.find(x=>x.id===productionDetailId);if(!p)return;if(!confirm(`Xóa sản lượng ${fmtDate(p.date)} · ${p.sku} ${p.color} · ${fmtN(p.qty)} cái?`))return;const id=p.id;productionDetailId='';state.production=state.production.filter(x=>x.id!==id);persist();renderAll();syncProductionDetailView();requestAnimationFrame(scrollProductionTop)}
+function syncProductionDetailView(){const detail=document.getElementById('productionDetailView'),main=document.getElementById('productionMainView'),title=document.getElementById('productionDetailTitle'),deleteBtn=document.getElementById('productionDetailDeleteBtn'),actions=document.getElementById('productionDetailActions');const open=productionDetailMode==='create'||productionDetailMode==='edit'||!!productionDetailId;const creating=productionDetailMode==='create';if(detail)detail.hidden=!open;if(main)main.hidden=open;if(title)title.textContent=creating?'Nhập sản lượng thực tế':'Chỉnh sửa sản lượng';if(deleteBtn)deleteBtn.hidden=creating;if(actions)actions.style.gridTemplateColumns=creating?'1fr':'1fr 1fr'}
+function openProductionDetail(id=''){const o=activeOrder();if(!o){alert('Chưa chọn đơn hàng.');return}const creating=!id;const p=creating?null:state.production.find(x=>x.id===id&&x.orderId===o.id);if(!creating&&!p)return;productionDetailMode=creating?'create':'edit';productionDetailId=creating?'':id;productionEditMode=false;productionFormOpen=false;productionEditingId='';closeProductionProperties();const date=document.getElementById('prodDetailDate'),sku=document.getElementById('prodDetailSku'),qty=document.getElementById('prodDetailQty');if(date)date.value=creating?todayISO():(p.date||todayISO());if(sku){const skus=[...new Set((o.items||[]).map(i=>i.sku).filter(Boolean))];if(p?.sku&&!skus.includes(p.sku))skus.push(p.sku);sku.innerHTML=skus.length?skus.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join(''):'<option value="">—</option>';if(creating){sku.value=skus[0]||''}else sku.value=p.sku||''}refreshProductionDetailColors(creating?'':(p.color||''));if(qty)qty.value=creating?'':Number(p.qty||0);syncDateDisplay('prodDetailDate');refreshProductionDetailThreadHint();syncProductionFormUI();syncProductionDetailView();requestAnimationFrame(scrollProductionTop)}
+function closeProductionDetail(){productionDetailId='';productionDetailMode='';syncProductionDetailView();renderProduction();requestAnimationFrame(scrollProductionTop)}
+function saveProductionDetail(){const o=activeOrder();if(!o){alert('Chưa chọn đơn hàng.');return}const date=document.getElementById('prodDetailDate')?.value||'',sku=document.getElementById('prodDetailSku')?.value||'',color=document.getElementById('prodDetailColor')?.value||'',qty=Number(document.getElementById('prodDetailQty')?.value||0);if(!date||!sku||!color||qty<=0){alert('Cần nhập ngày, mã, màu và sản lượng > 0.');return}if(productionDetailMode==='create'){state.production.unshift({id:uid(),orderId:o.id,date,sku,color,qty,note:'',createdAt:new Date().toISOString()})}else{const p=state.production.find(x=>x.id===productionDetailId&&x.orderId===o.id);if(!p){alert('Không tìm thấy dòng sản lượng cần sửa.');return}p.date=date;p.sku=sku;p.color=color;p.qty=qty;p.updatedAt=new Date().toISOString()}productionDetailId='';productionDetailMode='';persist();renderAll();syncProductionDetailView();requestAnimationFrame(scrollProductionTop)}
+function deleteProductionDetail(){if(productionDetailMode==='create')return;const p=state.production.find(x=>x.id===productionDetailId);if(!p)return;if(!confirm(`Xóa sản lượng ${fmtDate(p.date)} · ${p.sku} ${p.color} · ${fmtN(p.qty)} cái?`))return;const id=p.id;productionDetailId='';productionDetailMode='';state.production=state.production.filter(x=>x.id!==id);persist();renderAll();syncProductionDetailView();requestAnimationFrame(scrollProductionTop)}
 function openProductionProperties(id){const o=activeOrder();if(!o)return;const p=state.production.find(x=>x.id===id&&x.orderId===o.id);if(!p)return;productionPropertiesId=id;const overlay=document.getElementById('productionPropertiesOverlay'),body=document.getElementById('productionPropertiesBody');const cap=baseCapacityFor(p.date),diff=Number(p.qty||0)-cap,debt=Math.max(0,-diff),surplus=Math.max(0,diff);const status=surplus?`${fmtN(surplus)} dư`:`${fmtN(debt)} nợ`,statusClass=surplus?'status-surplus':(debt?'status-debt':'');if(body)body.innerHTML=`<div class="production-property"><div class="production-property-label">Ngày</div><div class="production-property-value">${fmtDate(p.date)}</div></div><div class="production-property"><div class="production-property-label">Số cái may được</div><div class="production-property-value">${fmtN(p.qty)}</div></div><div class="production-property"><div class="production-property-label">Mã hàng</div><div class="production-property-value">${esc(p.sku)}</div></div><div class="production-property"><div class="production-property-label">Màu</div><div class="production-property-value">${esc(p.color)}</div></div><div class="production-property"><div class="production-property-label">Năng lực ngày</div><div class="production-property-value">${fmtN(cap)}</div></div><div class="production-property"><div class="production-property-label">Nợ / Dư</div><div class="production-property-value ${statusClass}">${status}</div></div>`;overlay?.classList.add('open')}
 function closeProductionProperties(){productionPropertiesId='';document.getElementById('productionPropertiesOverlay')?.classList.remove('open')}
 function editProductionFromProperties(){const id=productionPropertiesId;if(!id)return;closeProductionProperties();openProductionForm(id)}
@@ -714,6 +715,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.111</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.112</span></div>
 </body>
 </html>
