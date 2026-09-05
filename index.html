@@ -305,6 +305,18 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 #production .production-row.production-history-line{display:grid!important;grid-template-columns:19fr 16fr 18fr 21fr 26fr!important;column-gap:6px!important;align-items:center!important;padding:0!important}
 @media(max-width:390px){#production .production-row.production-history-line{display:grid!important;grid-template-columns:19fr 16fr 18fr 21fr 26fr!important;column-gap:5px!important;padding:0!important}}
 .device-preview-shell #production .production-row.production-history-line{display:grid!important;grid-template-columns:19fr 16fr 18fr 21fr 26fr!important;column-gap:5px!important;align-items:center!important;padding:0!important}
+
+/* v0.1.124 — V67 typography-only: Tổng quan dùng cùng scale chữ rõ ràng */
+#home .home-group-title,#home .home-suggestion-group-label{font-size:17px;font-weight:850;line-height:1.2}
+#home .home-kpi-wrap .metric,#home #todaySummary .metric{font-size:22px!important;line-height:1.1;letter-spacing:-.35px}
+#home .home-kpi-wrap .metric-label,#home #todaySummary .metric-label,#home .home-ideal-days-label,#home .home-kpi-finish-label{font-size:14px;line-height:1.25}
+#home .home-ideal-days-value,#home .home-breakdown-proposal-date{font-size:22px;font-weight:850;line-height:1.1}
+#home .home-progress-alert-title,#home .home-support-title,#home .home-breakdown-title{font-size:15px;line-height:1.25}
+#home .home-progress-alert-text,#home .home-delay-result,#home .home-delay-sim-title,#home .home-support-date,#home .home-breakdown-count,#home .home-breakdown-item,#home .home-breakdown-proposal-days{font-size:13px;line-height:1.3}
+#home .home-support-box-label,#home .home-breakdown-proposal-label,#home .home-delay-stepper-days{font-size:12px;line-height:1.25}
+#home .home-support-box-value{font-size:22px;line-height:1.1;letter-spacing:-.35px}
+#home .home-support-box-unit{font-size:13px}
+@media(max-width:430px){#home .home-kpi-wrap .metric,#home #todaySummary .metric,#home .home-ideal-days-value,#home .home-breakdown-proposal-date,#home .home-support-box-value{font-size:22px!important}#home .home-kpi-wrap .metric-label,#home #todaySummary .metric-label,#home .home-ideal-days-label,#home .home-kpi-finish-label{font-size:14px}#home .home-progress-alert-text,#home .home-delay-result,#home .home-delay-sim-title,#home .home-support-date,#home .home-breakdown-count,#home .home-breakdown-item,#home .home-breakdown-proposal-days{font-size:13px}}
 </style>
 </head>
 <body>
@@ -489,7 +501,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.123';
+const BUILD='v0.1.124';
 let productionEditMode=false;
 let productionFormOpen=false;
 let productionEditingId='';
@@ -769,6 +781,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.123</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.124</span></div>
 </body>
 </html>
