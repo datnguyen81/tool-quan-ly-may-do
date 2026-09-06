@@ -251,15 +251,16 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .home-delay-stepper-value{width:88px;min-width:88px;text-align:center;font-size:14px;font-weight:800;white-space:nowrap;display:flex;flex-direction:column;align-items:center;line-height:1.05}.home-delay-stepper-days{margin-top:3px;font-size:14px;font-weight:600;color:var(--muted)}
 .home-delay-proposed-date{margin-top:7px;font-size:14px;color:var(--muted)}
 .home-delay-result{margin-top:9px;border:1px solid var(--accent-border);background:var(--accent-soft);border-radius:11px;padding:9px 10px;color:var(--accent);font-size:14px;font-weight:700;line-height:1.25;white-space:nowrap}
-/* v0.1.152 — V94: evaluate proposed ship date with actual daily capacity */
-.home-delay-support{margin-top:8px;border-top:1px solid var(--line)}
-.home-delay-support-row{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);font-size:14px;line-height:1.3}
-.home-delay-support-row:last-child{border-bottom:0}
-.home-delay-support-label{font-weight:600;color:var(--muted);min-width:0}
-.home-delay-support-value{font-weight:800;text-align:right;white-space:nowrap}
+/* v0.1.153 — V94 UI polish: show proposed-date support results as boxes like the support card */
+.home-delay-support{margin-top:8px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.home-delay-support-row{min-height:80px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:8px;border:1px solid var(--line);border-radius:12px;background:#fbfbfa;padding:10px 10px 11px;font-size:14px;line-height:1.3;min-width:0}
+.home-delay-support-row:last-child{border-bottom:1px solid var(--line)}
+.home-delay-support-label{font-weight:700;color:var(--muted);min-height:28px;min-width:0}
+.home-delay-support-value{margin-top:0;font-size:25px;font-weight:850;line-height:1;color:var(--ink);letter-spacing:-.3px;text-align:left;white-space:nowrap}
 .home-delay-support-value.is-short{color:var(--danger)}
 .home-delay-support-value.is-ok{color:var(--accent)}
-@media(max-width:430px){.home-delay-sim{padding:11px 12px}.home-delay-sim-title{font-size:14px}.home-delay-stepper{gap:12px}.home-delay-stepper button{width:44px;height:44px;min-height:44px}.home-delay-stepper-value{width:88px;min-width:88px;font-size:14px}.home-progress-alert-text,.home-delay-result{font-size:14px;letter-spacing:-.1px}}
+.home-delay-support-unit{font-size:14px;font-weight:700;color:#666;margin-left:4px}
+@media(max-width:430px){.home-delay-sim{padding:11px 12px}.home-delay-sim-title{font-size:14px}.home-delay-stepper{gap:12px}.home-delay-stepper button{width:44px;height:44px;min-height:44px}.home-delay-stepper-value{width:88px;min-width:88px;font-size:14px}.home-progress-alert-text,.home-delay-result{font-size:14px;letter-spacing:-.1px}.home-delay-support-row{padding:9px 9px 10px;min-height:78px}.home-delay-support-label{font-size:14px;min-height:26px}.home-delay-support-value{font-size:23px}.home-delay-support-unit{font-size:14px}}
 #home>.card{margin-top:0}
 @media(max-width:390px){.home-kpi-shift .metric{font-size:26px}.home-ship-date{font-size:14px}}
 @media(min-width:680px){.screen{padding:18px}.top{padding-left:20px;padding-right:20px}.kpi-wrap{grid-template-columns:repeat(4,1fr)}}
@@ -678,7 +679,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.152';
+const BUILD='v0.1.153';
 let productionEditMode=false;
 let productionFormOpen=false;
 let productionEditingId='';
@@ -957,7 +958,7 @@ function renderPreview(){const o=activeOrder();const box=document.getElementById
 
 let shipDelayPreview={orderId:'',days:1};
 function adjustShipDelayPreview(delta){const o=activeOrder();if(!o)return;if(shipDelayPreview.orderId!==o.id)shipDelayPreview={orderId:o.id,days:1};shipDelayPreview.days=Math.max(1,Math.min(30,Number(shipDelayPreview.days||1)+Number(delta||0)));renderHome()}
-function shipDelayPreviewHtml(o,rem,fromDate){if(!o||rem<=0)return'';if(shipDelayPreview.orderId!==o.id)shipDelayPreview={orderId:o.id,days:1};const days=Math.max(1,Number(shipDelayPreview.days||1));const proposedShip=addDays(o.shipDate,days);const prodDays=productionDaysRemaining(proposedShip,fromDate);const need=prodDays>0?Math.ceil(rem/prodDays):null;const result=prodDays>0?`${fmtN(need)}/ngày × ${fmtN(prodDays)} ngày để kịp xuất`:'Không còn ngày sản xuất';const proposedOrder={...o,shipDate:proposedShip};const normalCapacity=normalCapacityRemainingToShip(proposedOrder,fromDate);const boostedCapacity=fixedDailyCapacityRemainingToShip(proposedOrder,fromDate,110);const supportNormal=Math.max(0,rem-normalCapacity);const supportBoosted=Math.max(0,rem-boostedCapacity);const supportText=n=>n>0?`Còn thiếu ${fmtN(n)} cái`:'Kịp tiến độ';const supportClass=n=>n>0?'is-short':'is-ok';return `<div class="home-suggestion-group-label">Đề nghị lùi ngày xuất hàng</div><div class="home-delay-sim"><div class="home-delay-sim-head is-centered"><div class="home-delay-stepper"><button type="button" aria-label="Giảm 1 ngày" onclick="adjustShipDelayPreview(-1)" ${days<=1?'disabled':''}>−</button><span class="home-delay-stepper-value"><span>${fmtDate(proposedShip)}</span><span class="home-delay-stepper-days">${fmtN(days)} ngày</span></span><button type="button" aria-label="Tăng 1 ngày" onclick="adjustShipDelayPreview(1)">+</button></div></div><div class="home-delay-result">${result}</div><div class="home-delay-support"><div class="home-delay-support-row"><span class="home-delay-support-label">Theo tiến độ</span><span class="home-delay-support-value ${supportClass(supportNormal)}">${supportText(supportNormal)}</span></div><div class="home-delay-support-row"><span class="home-delay-support-label">Tăng ca 110c/ngày</span><span class="home-delay-support-value ${supportClass(supportBoosted)}">${supportText(supportBoosted)}</span></div></div></div>`}
+function shipDelayPreviewHtml(o,rem,fromDate){if(!o||rem<=0)return'';if(shipDelayPreview.orderId!==o.id)shipDelayPreview={orderId:o.id,days:1};const days=Math.max(1,Number(shipDelayPreview.days||1));const proposedShip=addDays(o.shipDate,days);const prodDays=productionDaysRemaining(proposedShip,fromDate);const need=prodDays>0?Math.ceil(rem/prodDays):null;const result=prodDays>0?`${fmtN(need)}/ngày × ${fmtN(prodDays)} ngày để kịp xuất`:'Không còn ngày sản xuất';const proposedOrder={...o,shipDate:proposedShip};const normalCapacity=normalCapacityRemainingToShip(proposedOrder,fromDate);const boostedCapacity=fixedDailyCapacityRemainingToShip(proposedOrder,fromDate,110);const supportNormal=Math.max(0,rem-normalCapacity);const supportBoosted=Math.max(0,rem-boostedCapacity);const supportText=n=>n>0?`Còn thiếu ${fmtN(n)}<span class="home-delay-support-unit">cái</span>`:`Kịp tiến độ`;const supportClass=n=>n>0?'is-short':'is-ok';return `<div class="home-suggestion-group-label">Đề nghị lùi ngày xuất hàng</div><div class="home-delay-sim"><div class="home-delay-sim-head is-centered"><div class="home-delay-stepper"><button type="button" aria-label="Giảm 1 ngày" onclick="adjustShipDelayPreview(-1)" ${days<=1?'disabled':''}>−</button><span class="home-delay-stepper-value"><span>${fmtDate(proposedShip)}</span><span class="home-delay-stepper-days">${fmtN(days)} ngày</span></span><button type="button" aria-label="Tăng 1 ngày" onclick="adjustShipDelayPreview(1)">+</button></div></div><div class="home-delay-result">${result}</div><div class="home-delay-support"><div class="home-delay-support-row"><span class="home-delay-support-label">Theo tiến độ</span><span class="home-delay-support-value ${supportClass(supportNormal)}">${supportText(supportNormal)}</span></div><div class="home-delay-support-row"><span class="home-delay-support-label">Tăng ca 110c/ngày</span><span class="home-delay-support-value ${supportClass(supportBoosted)}">${supportText(supportBoosted)}</span></div></div></div>`}
 const OVERTIME_QTY_PER_DAY=110;
 let overtimePreview={orderId:'',days:1};
 function adjustOvertimePreview(delta){const o=activeOrder();if(!o)return;if(overtimePreview.orderId!==o.id)overtimePreview={orderId:o.id,days:1};overtimePreview.days=Math.max(1,Math.min(30,Number(overtimePreview.days||1)+Number(delta||0)));renderHome()}
@@ -969,6 +970,6 @@ async function init(){await openDB();await loadState();if(!state.orders.length){
 init();
 </script>
 <div id="photoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Ảnh report máy hư" onclick="if(event.target===this)closeMachineBreakdownPhoto()"><button class="photo-viewer-close" type="button" aria-label="Đóng ảnh" onclick="closeMachineBreakdownPhoto()">×</button><img id="photoViewerImg" alt="Ảnh report máy hư" /></div>
-<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.152</span></div>
+<div class="footer-build">Tool_Quản lý may đồ · <span>v0.1.153</span></div>
 </body>
 </html>
