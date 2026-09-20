@@ -99,6 +99,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .production-history-balance.has-debt{color:var(--danger)}
 .production-history-balance.no-debt{color:var(--muted)}
 .production-balance-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin:2px 0 8px;background:#fafafa}.production-balance-summary-label{font-size:14px;font-weight:700;color:var(--muted)}.production-balance-summary-value{font-size:22px;font-weight:900;line-height:1;white-space:nowrap}.production-balance-summary-value.has-debt{color:var(--danger)}.production-balance-summary-value.has-surplus{color:var(--accent)}.production-balance-summary-value.no-debt{color:var(--muted)}.production-balance-option{display:flex;align-items:center;gap:9px;margin:0 0 10px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fafafa;font-size:14px;font-weight:750;color:#222;cursor:pointer}.production-balance-option input{width:20px;height:20px;min-height:20px;flex:0 0 auto;margin:0}.production-balance-option span{line-height:1.25}
+/* v0.1.203 — V146: daily Nợ/Dư uses capacity of the actual weekday */
 /* v0.1.202 — V145: bottom TabBar labels stay on one line */
 @media(max-width:360px){.nav button{font-size:13px}}
 @media(max-width:390px){.production-history-columns-head,.production-history-line{grid-template-columns:19fr 16fr 18fr 21fr 26fr;column-gap:5px}.production-history-columns-head{font-size:14px}}
@@ -862,7 +863,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 </div>
 
 <script>
-const BUILD='v0.1.202';
+const BUILD='v0.1.203';
 let productionEditMode=false;
 let productionFormOpen=false;
 let productionEditingId='';
@@ -965,7 +966,7 @@ function isMachineBreakdownDate(dateStr){return (state.machineBreakdowns||[]).so
 function capacityFor(dateStr){if(!dateStr)return 0;return isMachineBreakdownDate(dateStr)?0:baseCapacityFor(dateStr)}
 function shiftTargetRecord(orderId){const rows=(state.shiftTargets||[]).filter(x=>x.orderId===orderId);if(!rows.length)return null;return rows.find(x=>x.date==='*')||rows.slice().sort((a,b)=>String(a.updatedAt||a.date||'').localeCompare(String(b.updatedAt||b.date||''))).pop()||null}
 function shiftTargetQty(orderId){const t=shiftTargetRecord(orderId);if(!t)return null;return Math.max(0,Number(t.cartons||0))*Number(state.settings.cartonSize||110)+Math.max(0,Number(t.pieces||0))}
-function dailyTargetQty(orderId,date){return productionBalanceCapacity()}
+function dailyTargetQty(orderId,date){return baseCapacityFor(date)}
 function shiftTargetText(orderId){const t=shiftTargetRecord(orderId);if(!t)return '';const c=Math.max(0,Number(t.cartons||0)),p=Math.max(0,Number(t.pieces||0));if(c&&p)return `${fmtN(c)}T + ${fmtN(p)}`;if(c)return `${fmtN(c)}T`;if(p)return `${fmtN(p)} cái`;return ''}
 function loadShiftTargetInputs(orderId){const id=orderId||(orderFormOpen&&orderDetailMode==='edit-order'?orderDetailId:'');const cEl=document.getElementById('shiftTargetCartons'),pEl=document.getElementById('shiftTargetPieces'),totalEl=document.getElementById('shiftTargetTotal');if(!cEl||!pEl||!totalEl)return;const t=id?shiftTargetRecord(id):null;cEl.value=t?Number(t.cartons||0):0;pEl.value=t?Number(t.pieces||0):0;const q=t?shiftTargetQty(id):null;totalEl.textContent=t?`= ${fmtN(q)} cái`:'Chưa nhập Số lượng 1 ca'}
 function refreshShiftTargetTotalPreview(){const c=Math.max(0,Number(document.getElementById('shiftTargetCartons')?.value||0)),p=Math.max(0,Number(document.getElementById('shiftTargetPieces')?.value||0)),totalEl=document.getElementById('shiftTargetTotal');if(totalEl)totalEl.textContent=(c>0||p>0)?`= ${fmtN(c*Number(state.settings.cartonSize||110)+p)} cái`:'Chưa nhập Số lượng 1 ca'}
@@ -990,7 +991,7 @@ function productionBalanceStart(){const s=String(state.settings?.productionBalan
 function productionRecordExcludedFromBalance(p){return !!(p&&p.excludeFromBalance)}
 /* v0.1.135 — V86: Nợ/Dư do từng record kiểm soát; mốc ngày chỉ dùng khởi tạo legacy */
 function normalizeProductionBalanceFlags(){const start=productionBalanceStart();for(const p of (state.production||[])){if(typeof p.excludeFromBalance!=='boolean')p.excludeFromBalance=!!(p.date&&p.date<start)}}
-function productionBalanceForDate(orderId,date){const allRows=(state.production||[]).filter(p=>p.orderId===orderId&&p.date===date);const actualAll=allRows.reduce((a,p)=>a+Number(p.qty||0),0),capacity=productionBalanceCapacity();if(!date)return{actual:actualAll,countedActual:0,capacity,diff:null,debt:0,surplus:0,tracked:false};const countedRows=allRows.filter(p=>!productionRecordExcludedFromBalance(p));if(!countedRows.length)return{actual:actualAll,countedActual:0,capacity,diff:null,debt:0,surplus:0,tracked:false};const countedActual=countedRows.reduce((a,p)=>a+Number(p.qty||0),0),diff=countedActual-capacity;return{actual:actualAll,countedActual,capacity,diff,debt:Math.max(0,-diff),surplus:Math.max(0,diff),tracked:true}}
+function productionBalanceForDate(orderId,date){const allRows=(state.production||[]).filter(p=>p.orderId===orderId&&p.date===date);const actualAll=allRows.reduce((a,p)=>a+Number(p.qty||0),0),capacity=dailyTargetQty(orderId,date);if(!date)return{actual:actualAll,countedActual:0,capacity,diff:null,debt:0,surplus:0,tracked:false};const countedRows=allRows.filter(p=>!productionRecordExcludedFromBalance(p));if(!countedRows.length)return{actual:actualAll,countedActual:0,capacity,diff:null,debt:0,surplus:0,tracked:false};const countedActual=countedRows.reduce((a,p)=>a+Number(p.qty||0),0),diff=countedActual-capacity;return{actual:actualAll,countedActual,capacity,diff,debt:Math.max(0,-diff),surplus:Math.max(0,diff),tracked:true}}
 function cumulativeProductionBalance(o,date){if(!o||!date)return null;const dates=[...new Set((state.production||[]).filter(p=>p.orderId===o.id&&p.date<=date&&!productionRecordExcludedFromBalance(p)).map(p=>p.date))].sort();if(!dates.length)return null;return dates.reduce((sum,d)=>{const b=productionBalanceForDate(o.id,d);return sum+(b.diff===null?0:b.diff)},0)}
 function currentProductionBalance(o){if(!o)return null;return cumulativeProductionBalance(o,todayISO())}
 function cartonBreak(n){const c=state.settings.cartonSize||110; return {full:Math.floor(n/c),loose:n%c}}
